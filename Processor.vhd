@@ -11,7 +11,7 @@ entity Processor is
 end Processor;
 
 architecture ProcessorArch of Processor is
---signal en : std_logic;
+signal wr_en : std_logic:='0';
 signal addAmt : std_logic_vector(1 downto 0);
 signal curr_instr : std_logic_vector(15 downto 0);
 signal instr : std_logic_vector(31 downto 0);
@@ -31,7 +31,7 @@ begin
 pc: entity work.pc port map(clk=>clk, rst=>rst, en=>'1', addAmt =>addAmt , ci=>curr_instr);
 FetchUnit: entity work.FetchUnit port map(clk=>clk, rst=>rst, currInstrPc=>curr_instr, instr=>instr, pcNxtAddAmt=>addAmt);
 FD_Buffer: entity work.MynBuffer generic map (32) port map(clk => clk, rst => rst, en=>'1' , d=>instr , q=>fdout);
-RegFile: entity work.MyMemory port map(clk => clk, rst => rst, w_en => '1', r_add1 => fdout(23 downto 21), r_add2 => fdout(20 downto 18), w_add =>fdout(26 downto 24), write_port => wbout, read_port_rs => read_port_rs, read_port_rt => read_port_rt);
+RegFile: entity work.MyMemory generic map (16,3) port map(clk => clk, rst => rst, w_en => wr_en, r_add1 => fdout(23 downto 21), r_add2 => fdout(20 downto 18), w_add =>fdout(26 downto 24), write_port => wbout, read_port_rs => read_port_rs, read_port_rt => read_port_rt);
 ControlUnit: entity work.ControlUnit port map(opcode => fdout(31 downto 27), AlUop => AlUop, AlUsrc => AlUsrc, RegDst => RegDst, MEMWrite => MEMWrite, MEMRead => MEMRead, MemtoReg => MemtoReg, RegWrite => RegWrite);
 dein <= fdout & AlUop & AlUsrc & RegDst & MEMWrite & MEMRead & MemtoReg & RegWrite;
 DE_Buffer: entity work.MynBuffer generic map (43) port map(clk => clk , rst => rst, en => '1', d => dein, q => deout);
