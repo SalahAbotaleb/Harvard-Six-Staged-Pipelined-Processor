@@ -1,7 +1,7 @@
 Library ieee;
 use ieee.std_logic_1164.all;
 USE IEEE.numeric_std.all;
-entity Fetch is
+entity FetchUnit is
     port (
         clk : in std_logic;
         rst:in std_logic; --this reset intialize the Register File to 0
@@ -9,11 +9,11 @@ entity Fetch is
         instr: out std_logic_vector(31 downto 0);  
         pcNxtAddAmt:out std_logic_vector(1 downto 0)
     );
-end Fetch;
+end FetchUnit;
 
 
 
-architecture FetchArch of Fetch is
+architecture FetchArch of FetchUnit is
     signal instr1,instr2,nxtInstr:std_logic_vector(15 downto 0):=(others=>'0');
 begin
 nxtInstr<=std_logic_vector(unsigned(currInstrPc)+1);
