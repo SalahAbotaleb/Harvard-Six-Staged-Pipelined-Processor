@@ -1,19 +1,22 @@
 Library ieee;
 use ieee.std_logic_1164.all;
 USE IEEE.numeric_std.all;
-entity FetchUnit is
+entity MemoryUnit is
+    generic(buffersize:integer :=16);
     port (
         clk : in std_logic;
         rst:in std_logic; --this reset intialize the Register File to 0
-        currInstrPc: in std_logic_vector(15 downto 0);
-        instr: out std_logic_vector(31 downto 0);  
-        pcNxtAddAmt:out std_logic_vector(1 downto 0)
+        en: in std_logic;
+        Readadd: in std_logic_vector(15 downto 0);
+        Writeadd: in std_logic_vector(15 downto 0);
+        Bufferinfo: in std_logic_vector(buffersize-1 downto 0); --to be changed 
+        Bufferinfo_out:out std_logic_vector(1 downto 0)
     );
-end FetchUnit;
+end MemoryUnit;
 
 
 
-architecture FetchArch of FetchUnit is
+architecture MemoryUnitArch of MemoryUnit is
     signal instr1,instr2,nxtInstr:std_logic_vector(15 downto 0):=(others=>'0');
 begin
 nxtInstr<=std_logic_vector(unsigned(currInstrPc)+1);
