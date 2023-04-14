@@ -25,10 +25,24 @@ signal dein : std_logic_vector(58 downto 0);
 signal deout : std_logic_vector(58 downto 0);
 signal Alures : std_logic_vector(15 downto 0);
 signal AluCCR : std_logic_vector(2 downto 0);
+signal emin : std_logic_vector(19 downto 0);
+signal emout : std_logic_vector(19 downto 0);
 --31 downto 27      --opcode
 --26 downto 24      --write address
 --23 downto 21      --read address 1
 --20 downto 18      --read address 2
+-----------------------------------------------
+--58 downto 43      --immediate
+--42 downto 27      --read data 1   (rs)
+--26 downto 11      --read data 2   (rt)
+--10 downto 6       --ALUop
+--5                 --ALUsrc
+--4                 --RegDst
+--3                 --MEMWrite
+--2                 --MEMRead
+--1                 --MemtoReg
+--0                 --RegWrite
+-----------------------------------------------
 begin
 pc: entity work.pc port map(clk=>clk, rst=>rst, en=>'1', addAmt =>addAmt , ci=>curr_instr);
 FetchUnit: entity work.FetchUnit port map(clk=>clk, rst=>rst, currInstrPc=>curr_instr, instr=>instr, pcNxtAddAmt=>addAmt);
@@ -37,6 +51,8 @@ RegFile: entity work.MyMemory generic map (16,3) port map(clk => clk, rst => rst
 ControlUnit: entity work.ControlUnit port map(opcode => fdout(31 downto 27), AlUop => AlUop, AlUsrc => AlUsrc, RegDst => RegDst, MEMWrite => MEMWrite, MEMRead => MEMRead, MemtoReg => MemtoReg, RegWrite => RegWrite);
 dein <= fdout(15 downto 0) & read_port_rs & read_port_rt & AlUop & AlUsrc & RegDst & MEMWrite & MEMRead & MemtoReg & RegWrite;
 DE_Buffer: entity work.MynBuffer generic map (58) port map(clk => clk , rst => rst, en => '1', d => dein, q => deout);
-ExecutionUnit: entity work.ExecutionUnit port map(clk => clk, ALUop => deout(11 downto 6), src1 => deout(42 downto 27) ,src2 => deout(26 downto 11), imm => deout(58 downto 43), ALUsrc => deout(10), RegDst => deout(9),inPort => inPort, res => Alures, CCR => AluCCR);
+ExecutionUnit: entity work.ExecutionUnit port map(clk => clk, ALUop => deout(11 downto 6), src1 => deout(42 downto 27) ,src2 => deout(26 downto 11), imm => deout(58 downto 43), ALUsrc => deout(5), RegDst => deout(4),inPort => inPort, res => Alures, CCR => AluCCR);
+emin <= Alures & AluCCR & deout(3 downto 0);
+EM_Buffer: entity work.MynBuffer generic map () port map(clk => clk , rst => rst, en => '1', d => emin, q => emout);
 
 end architecture;
