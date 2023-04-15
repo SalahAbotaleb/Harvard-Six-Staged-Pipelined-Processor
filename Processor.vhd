@@ -74,6 +74,6 @@ MyDataMemory: entity work.MyMemory generic map (16,16) port map(clk => clk, rst 
 ------read add and write add are same?????????????
 ------some control signal are not input to mydatamemory
 mwbin <= read_port & emout(1 downto 0);
-MWB_Buffer: entity work.MynBuffer generic map (16) port map(clk => clk , rst => rst, en => emout(0), d => mwbin, q => mwbout);
+MWB_Buffer: entity work.MynBuffer generic map (18) port map(clk => clk , rst => rst, en => emout(0), d => mwbin, q => mwbout);
 
 end architecture;
