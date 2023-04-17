@@ -30,11 +30,11 @@ signal AluCCRout : std_logic_vector(2 downto 0);
 signal AluCCRin : std_logic_vector(2 downto 0) := "000";
 signal SPin : std_logic_vector(15 downto 0);
 signal SPout : std_logic_vector(15 downto 0);
-signal emin : std_logic_vector(35 downto 0)
+signal emin : std_logic_vector(35 downto 0);
 signal emout : std_logic_vector(35 downto 0);
 signal read_data : std_logic_vector(15 downto 0);
-signal mwbin : std_logic_vector(17 downto 0);
-signal mwbout : std_logic_vector(17 downto 0);
+signal mwbin : std_logic_vector(33 downto 0);
+signal mwbout : std_logic_vector(33 downto 0);
 -----------------------------------------------
 ------------------fdin------------------------
 --47 downto 32      --current instruction (PC)
@@ -84,7 +84,7 @@ SP_Buffer: entity work.MynBuffer generic map (15) port map(clk => clk , rst => r
 ExecutionUnit: entity work.ExecutionUnit port map(clk => clk, ALUop => deout(10 downto 6), src1 => deout(42 downto 27) ,src2 => deout(26 downto 11), imm => deout(58 downto 43), ALUsrc => deout(5), RegDst => deout(4),inPort => inPort, datares => DataRes, memadd => Memadd, CCRout => AluCCRout, CCRin => AluCCRin, SPin =>SPin, SPout=> SPout, PCin => deout(74 downto 59));
 emin <= DataRes & Memadd & deout(3 downto 0);
 EM_Buffer: entity work.MynBuffer generic map (36) port map(clk => clk , rst => rst, en => '1', d => emin, q => emout);
-MemoryUnit: entity work.MemoryUnit generic map (16,10) port map(clk => clk, rst => rst, en=>'1', r_add1 => emout(13 downto 4), w_add => emout(13 downto 4),read_en => emout(2), w_en => emout(3), write_data => emout(35 downto 20), read_data => read_data);
+MemoryUnit: entity work.MemoryUnit generic map (16,10) port map(clk => clk, rst => rst, en=>'1', Readadd => emout(13 downto 4), Writeadd => emout(13 downto 4),read_en => emout(2), write_en => emout(3), write_data => emout(35 downto 20), read_data => read_data);
 mwbin <= DataRes & read_data & emout(1 downto 0);
 MWB_Buffer: entity work.MynBuffer generic map (34) port map(clk => clk , rst => rst, en => '1', d => mwbin, q => mwbout);
 
