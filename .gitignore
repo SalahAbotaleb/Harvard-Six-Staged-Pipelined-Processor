@@ -26,3 +26,10 @@ cov*/
 transcript*
 sc_dpiheader.h
 vsim.dbg
+Compiler/.idea/.gitignore
+Compiler/.idea/Compiler.iml
+Compiler/.idea/misc.xml
+Compiler/.idea/modules.xml
+Compiler/.idea/vcs.xml
+Compiler/cmake-build-debug
+Compiler/cmake-build-release
