@@ -46,6 +46,7 @@ int main (int argc, char *argv[]) {
     ofstream fout(argv[2] + string(".mem"));
     char s;
     string op, reg;
+    int add=0;
     while (fin >> noskipws >> s) {
         if (s == '#' || s == '.') {
             while (fin >> noskipws >> s && s != '\n');
@@ -60,6 +61,7 @@ int main (int argc, char *argv[]) {
                 reg += s;
             }
             cout << op << " " << reg << endl;
+            fout<<add++<<": ";
             if (op == "NOP") {
                 fout << "0000000000000000" << endl;
             } else if (op == "SETC") {
