@@ -24,10 +24,14 @@ architecture MyDataMemory_arch of MyDataMemory is
    if rst='1' then
     x<=(others=>(others=>'0'));
   elsif (clk'event and clk = '1' and en='1')  then
-    if (read_en'event and read_en = '1') then
+    if (w_en = '1') then
       x(to_integer(unsigned(w_add)))<=write_port;
-      read_port<=x(to_integer(unsigned(r_add)));
-        end if;
+      end if;
+      if (read_en'event and read_en = '1') then
+    -- if (read_en'event and read_en = '1') then
+    --   x(to_integer(unsigned(w_add)))<=write_port;
+        read_port<=x(to_integer(unsigned(r_add)));
+      end if;
   end if;
   end process;
 end MyDataMemory_arch ; 
