@@ -42,8 +42,8 @@ string hex2bin (char x) {
 }
 
 int main (int argc, char *argv[]) {
-    ifstream fin(R"(C:\Users\moaaz\Downloads\Testcases_PhaseOne.asm)");
-    ofstream fout(R"(Testcases_PhaseOne.mem)");
+    ifstream fin(argv[1] + string(".asm"));
+    ofstream fout(argv[2] + string(".mem"));
     char s;
     string op, reg;
     while (fin >> noskipws >> s) {
