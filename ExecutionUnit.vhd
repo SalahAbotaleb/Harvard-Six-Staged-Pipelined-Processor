@@ -115,8 +115,7 @@ begin
                     SPout <= std_logic_vector(unsigned(SPin) - 1);
                 -- POP Rdst
                 when 14 =>
-                    datares <= src1; -- destination
-                    memadd <= std_logic_vector(unsigned(SPin) + 1);
+                    datares <= std_logic_vector(unsigned(SPin) + 1);
                     SPout <= std_logic_vector(unsigned(SPin) + 1);
                 -- LDD Rdst, Rsrc1
                 when 15 => memadd<= src1;
