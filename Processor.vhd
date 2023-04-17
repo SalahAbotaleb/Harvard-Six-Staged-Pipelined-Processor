@@ -22,20 +22,20 @@ signal read_port_rt : std_logic_vector(15 downto 0);
 signal data : std_logic_vector(15 downto 0);
 signal ALUop : std_logic_vector(4 downto 0);
 signal ALUsrc,RegDst,MEMWrite,MEMRead,MemtoReg,RegWrite : std_logic;
-signal dein : std_logic_vector(74 downto 0);
-signal deout : std_logic_vector(74 downto 0);
+signal dein : std_logic_vector(77 downto 0);
+signal deout : std_logic_vector(77 downto 0);
 signal DataRes : std_logic_vector(15 downto 0);
 signal Memadd : std_logic_vector(15 downto 0);
 signal AluCCRout : std_logic_vector(2 downto 0);
 signal AluCCRin : std_logic_vector(2 downto 0) := "000";
 signal SPin : std_logic_vector(15 downto 0);
 signal SPout : std_logic_vector(15 downto 0);
-signal emin : std_logic_vector(35 downto 0);
-signal emout : std_logic_vector(35 downto 0);
-signal MM : std_logic_vector(35 downto 0);
+signal emin : std_logic_vector(38 downto 0);
+signal emout : std_logic_vector(38 downto 0);
+signal MM : std_logic_vector(38 downto 0);
 signal read_data : std_logic_vector(15 downto 0);
-signal mwbin : std_logic_vector(33 downto 0);
-signal mwbout : std_logic_vector(33 downto 0);
+signal mwbin : std_logic_vector(36 downto 0);
+signal mwbout : std_logic_vector(36 downto 0);
 -----------------------------------------------
 ------------------fdin------------------------
 --47 downto 32      --current instruction (PC)
@@ -76,19 +76,19 @@ pc: entity work.pc port map(clk=>clk, rst=>rst, en=>'1', addAmt =>addAmt , ci=>c
 FetchUnit: entity work.FetchUnit port map(clk=>clk, rst=>rst, currInstrPc=>curr_instr, instr=>instr, pcNxtAddAmt=>addAmt);
 fdin <= curr_instr & instr;
 FD_Buffer: entity work.MynBuffer generic map (48) port map(clk => clk, rst => rst, en=>'1' , d=>fdin , q=>fdout);
-RegFile: entity work.MyMemory generic map (16,3) port map(clk => clk, rst => rst, w_en => mwbout(0), r_add1 => fdout(23 downto 21), r_add2 => fdout(20 downto 18), w_add =>fdout(26 downto 24), write_port => data, read_port_rs => read_port_rs, read_port_rt => read_port_rt);
+RegFile: entity work.MyMemory generic map (16,3) port map(clk => clk, rst => rst, w_en => mwbout(0), r_add1 => fdout(23 downto 21), r_add2 => fdout(20 downto 18), w_add =>mwbout(36 downto 34), write_port => data, read_port_rs => read_port_rs, read_port_rt => read_port_rt);
 ControlUnit: entity work.ControlUnit port map(opcode => fdout(31 downto 27), AlUop => AlUop, AlUsrc => AlUsrc, RegDst => RegDst, MEMWrite => MEMWrite, MEMRead => MEMRead, MemtoReg => MemtoReg, RegWrite => RegWrite);
-dein <= fdout(47 downto 32) & fdout(15 downto 0) & read_port_rs & read_port_rt & AlUop & AlUsrc & RegDst & MEMWrite & MEMRead & MemtoReg & RegWrite;
-DE_Buffer: entity work.MynBuffer generic map (75) port map(clk => clk , rst => rst, en => '1', d => dein, q => deout);
+dein <= fdout(26 downto 24) & fdout(47 downto 32) & fdout(15 downto 0) & read_port_rs & read_port_rt & AlUop & AlUsrc & RegDst & MEMWrite & MEMRead & MemtoReg & RegWrite;
+DE_Buffer: entity work.MynBuffer generic map (78) port map(clk => clk , rst => rst, en => '1', d => dein, q => deout);
 CCR_Buffer: entity work.MynBuffer generic map (3) port map(clk => clk , rst => rst, en => '1', d => AluCCRout, q => AluCCRin);
 SP_Buffer: entity work.MynBuffer generic map (16) port map(clk => clk , rst => rst, en => '1', d => SPout, q => SPin);
 ExecutionUnit: entity work.ExecutionUnit port map(clk => clk, ALUop => deout(10 downto 6), src1 => deout(42 downto 27) ,src2 => deout(26 downto 11), imm => deout(58 downto 43), ALUsrc => deout(5), RegDst => deout(4),inPort => inPort, datares => DataRes, memadd => Memadd, CCRout => AluCCRout, CCRin => AluCCRin, SPin =>SPin, SPout=> SPout, PCin => deout(74 downto 59));
-emin <= DataRes & Memadd & deout(3 downto 0);
-EM_Buffer: entity work.MynBuffer generic map (36) port map(clk => clk , rst => rst, en => '1', d => emin, q => emout);
-MM_Buffer: entity work.MynBuffer generic map (36) port map(clk => clk , rst => rst, en => '1', d => emout, q => MM);
+emin <= deout(77 downto 75) & DataRes & Memadd & deout(3 downto 0);
+EM_Buffer: entity work.MynBuffer generic map (39) port map(clk => clk , rst => rst, en => '1', d => emin, q => emout);
+MM_Buffer: entity work.MynBuffer generic map (39) port map(clk => clk , rst => rst, en => '1', d => emout, q => MM);
 MemoryUnit: entity work.MemoryUnit generic map (16,10) port map(clk => clk, rst => rst, en=>'1', Readadd => emout(13 downto 4), Writeadd => emout(13 downto 4),read_en => emout(2), write_en => emout(3), write_data => emout(35 downto 20), read_data => read_data);
-mwbin <= MM(35 downto 20) & read_data & MM(1 downto 0);
-MWB_Buffer: entity work.MynBuffer generic map (34) port map(clk => clk , rst => rst, en => '1', d => mwbin, q => mwbout);
+mwbin <= MM(38 downto 36) & MM(35 downto 20) & read_data & MM(1 downto 0);
+MWB_Buffer: entity work.MynBuffer generic map (37) port map(clk => clk , rst => rst, en => '1', d => mwbin, q => mwbout);
 
 data <= mwbout(33 downto 18) when mwbout(1) = '1' else mwbout(17 downto 2);
 
