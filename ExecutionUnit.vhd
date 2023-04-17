@@ -37,11 +37,40 @@ begin
                 when 2 => 
                     CCRout(0) <= '0';
                 -- NOT Rdst, Rsrc1
-                when 3 => datares<= not src1;
+                when 3 => 
+                    result := '0' & not src1;
+                    datares<= result(15 downto 0);
+                    CCRout(1) <= result(15);
+                    if (result(15 downto 0) = (15 downto 0 => '0'))
+                    then
+                        CCRout(2) <= '1';
+                    else
+                        CCRout(2) <= '0';
+                    end if;
                 -- INC Rdst, Rsrc1
-                when 4 => datares<= std_logic_vector(unsigned(src1) + 1);
+                when 4 => 
+                    result := std_logic_vector(unsigned('0' & src1) + 1);
+                    datares<= result(15 downto 0);
+                    CCRout(0) <= result(16);
+                    CCRout(1) <= result(15);
+                    if (result(15 downto 0) = (15 downto 0 => '0'))
+                    then
+                        CCRout(2) <= '1';
+                    else
+                        CCRout(2) <= '0';
+                    end if;
                 -- DEC Rdst, Rsrc1
-                when 5 => datares<= std_logic_vector(unsigned(src1) - 1);
+                when 5 => 
+                    result := std_logic_vector(unsigned('0' & src1) - 1);
+                    datares<= result(15 downto 0);
+                    CCRout(0) <= result(16);
+                    CCRout(1) <= result(15);
+                    if (result(15 downto 0) = (15 downto 0 => '0'))
+                    then
+                        CCRout(2) <= '1';
+                    else
+                        CCRout(2) <= '0';
+                    end if;
                 -- OUT Rsrc1
                 when 6 => outPort<= src1;
                 -- IN Rdst
@@ -75,26 +104,10 @@ begin
                     end if;
                 -- AND Rdst, Rsrc1, Rsrc2
                 when 11 => 
-                    result := '0' & src1 and '0' & src2;
-                    datares<= result (15 downto 0);
-                    CCRout(1) <= result(15);
-                    if (result(15 downto 0) = (15 downto 0 => '0'))
-                    then
-                        CCRout(2) <= '1';
-                    else
-                        CCRout(2) <= '0';
-                    end if;
+                    datares<= src1 and src2;
                 -- OR Rdst, Rsrc1, Rsrc2
                 when 12 => 
-                    result := '0' & src1 or '0' & src2;
-                    datares<= result (15 downto 0);
-                    CCRout(1) <= result(15);
-                    if (result(15 downto 0) = (15 downto 0 => '0'))
-                    then
-                        CCRout(2) <= '1';
-                    else
-                        CCRout(2) <= '0';
-                    end if;
+                    datares<= src1 or src2;
                 -- PUSH Rsrc1
                 when 13 => 
                     datares <= src1;
