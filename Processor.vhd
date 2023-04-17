@@ -19,7 +19,7 @@ signal fdin : std_logic_vector(47 downto 0);
 signal fdout : std_logic_vector(47 downto 0);
 signal read_port_rs : std_logic_vector(15 downto 0);
 signal read_port_rt : std_logic_vector(15 downto 0);
-signal wbout : std_logic_vector(15 downto 0);
+signal data : std_logic_vector(15 downto 0);
 signal ALUop : std_logic_vector(4 downto 0);
 signal ALUsrc,RegDst,MEMWrite,MEMRead,MemtoReg,RegWrite : std_logic;
 signal dein : std_logic_vector(74 downto 0);
@@ -75,7 +75,7 @@ pc: entity work.pc port map(clk=>clk, rst=>rst, en=>'1', addAmt =>addAmt , ci=>c
 FetchUnit: entity work.FetchUnit port map(clk=>clk, rst=>rst, currInstrPc=>curr_instr, instr=>instr, pcNxtAddAmt=>addAmt);
 fdin <= curr_instr & instr;
 FD_Buffer: entity work.MynBuffer generic map (32) port map(clk => clk, rst => rst, en=>'1' , d=>fdin , q=>fdout);
-RegFile: entity work.MyMemory generic map (16,3) port map(clk => clk, rst => rst, w_en => wr_en, r_add1 => fdout(23 downto 21), r_add2 => fdout(20 downto 18), w_add =>fdout(26 downto 24), write_port => wbout, read_port_rs => read_port_rs, read_port_rt => read_port_rt);
+RegFile: entity work.MyMemory generic map (16,3) port map(clk => clk, rst => rst, w_en => mwbout(0), r_add1 => fdout(23 downto 21), r_add2 => fdout(20 downto 18), w_add =>fdout(26 downto 24), write_port => data, read_port_rs => read_port_rs, read_port_rt => read_port_rt);
 ControlUnit: entity work.ControlUnit port map(opcode => fdout(31 downto 27), AlUop => AlUop, AlUsrc => AlUsrc, RegDst => RegDst, MEMWrite => MEMWrite, MEMRead => MEMRead, MemtoReg => MemtoReg, RegWrite => RegWrite);
 dein <= fdout(47 downto 32) & fdout(15 downto 0) & read_port_rs & read_port_rt & AlUop & AlUsrc & RegDst & MEMWrite & MEMRead & MemtoReg & RegWrite;
 DE_Buffer: entity work.MynBuffer generic map (59) port map(clk => clk , rst => rst, en => '1', d => dein, q => deout);
@@ -87,5 +87,7 @@ EM_Buffer: entity work.MynBuffer generic map (36) port map(clk => clk , rst => r
 MemoryUnit: entity work.MemoryUnit generic map (16,10) port map(clk => clk, rst => rst, en=>'1', Readadd => emout(13 downto 4), Writeadd => emout(13 downto 4),read_en => emout(2), write_en => emout(3), write_data => emout(35 downto 20), read_data => read_data);
 mwbin <= DataRes & read_data & emout(1 downto 0);
 MWB_Buffer: entity work.MynBuffer generic map (34) port map(clk => clk , rst => rst, en => '1', d => mwbin, q => mwbout);
+
+data <= mwbout(33 downto 18) when mwbout(1) = '1' else mwbout(17 downto 2);
 
 end architecture;
