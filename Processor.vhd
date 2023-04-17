@@ -45,6 +45,7 @@ signal mwbout : std_logic_vector(36 downto 0);
 --20 downto 18      --read address 2
 -----------------------------------------------
 ------------------dein-------------------------
+--77 downto 59      --write back address
 --74 downto 59      --current instruction (PC)
 --58 downto 43      --immediate
 --42 downto 27      --read data 1   (rs)
@@ -58,6 +59,7 @@ signal mwbout : std_logic_vector(36 downto 0);
 --0                 --RegWrite
 -----------------------------------------------
 ----------------emin / MM-----------------------
+--38 downto 36      --write back address
 --35 downto 20      --DataRes
 --19 downto 4       --Memadd    (13 downto 4)
 --3                 --MEMWrite
@@ -66,6 +68,7 @@ signal mwbout : std_logic_vector(36 downto 0);
 --0                 --RegWrite
 -----------------------------------------------
 ------------------mwbin------------------------
+--36 downto 34      --write back address    
 --33 downto 18       --DataRes
 --17 downto 2        --read_data
 --1                  --MemtoReg
