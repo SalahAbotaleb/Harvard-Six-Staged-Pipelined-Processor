@@ -24,7 +24,7 @@ WHEN 3 => ALUsrc<='0';RegDst<='0';MEMWrite<='0';MEMRead<='0';MemtoReg<='1';RegWr
 WHEN 4 => ALUsrc<='0';RegDst<='0';MEMWrite<='0';MEMRead<='0';MemtoReg<='1';RegWrite<='1';
 WHEN 5 => ALUsrc<='0';RegDst<='0';MEMWrite<='0';MEMRead<='0';MemtoReg<='1';RegWrite<='1';
 WHEN 6 => ALUsrc<='0';RegDst<='0';MEMWrite<='0';MEMRead<='0';MemtoReg<='0';RegWrite<='0';
-WHEN 7 => ALUsrc<='0';RegDst<='0';MEMWrite<='0';MEMRead<='0';MemtoReg<='0';RegWrite<='1';
+WHEN 7 => ALUsrc<='0';RegDst<='0';MEMWrite<='0';MEMRead<='0';MemtoReg<='1';RegWrite<='1';
 WHEN 8 => ALUsrc<='0';RegDst<='0';MEMWrite<='0';MEMRead<='0';MemtoReg<='1';RegWrite<='1';
 WHEN 9 => ALUsrc<='0';RegDst<='0';MEMWrite<='0';MEMRead<='0';MemtoReg<='1';RegWrite<='1';
 WHEN 10 => ALUsrc<='0';RegDst<='0';MEMWrite<='0';MEMRead<='0';MemtoReg<='1';RegWrite<='1';

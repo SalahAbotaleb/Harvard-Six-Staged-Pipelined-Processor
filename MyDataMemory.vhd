@@ -23,7 +23,7 @@ architecture MyDataMemory_arch of MyDataMemory is
   BEGIN
    if rst='1' then
     x<=(others=>(others=>'0'));
-  elsif (clk'event and clk = '1' and en='1')  then
+  elsif (clk'event and clk = '0' and en='1')  then
     if (w_en = '1') then
       x(to_integer(unsigned(w_add)))<=write_port;
     end if;
