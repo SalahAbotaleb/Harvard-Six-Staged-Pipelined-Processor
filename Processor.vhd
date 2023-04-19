@@ -36,6 +36,10 @@ signal MM : std_logic_vector(38 downto 0);
 signal read_data : std_logic_vector(15 downto 0);
 signal mwbin : std_logic_vector(36 downto 0);
 signal mwbout : std_logic_vector(36 downto 0);
+
+signal external_pc:std_logic_vector(15 downto 0);
+signal take_external:std_logic;
+signal read_intial_loc:std_logic;
 -----------------------------------------------
 ------------------fdin------------------------
 --47 downto 32      --current instruction (PC)
@@ -75,7 +79,7 @@ signal mwbout : std_logic_vector(36 downto 0);
 --0                  --RegWrite
 
 begin
-pc: entity work.pc port map(clk=>clk, rst=>rst, en=>'1', addAmt =>addAmt , ci=>curr_instr);
+pc: entity work.pc port map(clk=>clk, rst=>rst, en=>'1', external_pc=>external_pc, take_external=>take_external, addAmt =>addAmt , ci=>curr_instr);
 FetchUnit: entity work.FetchUnit port map(clk=>clk, rst=>rst, currInstrPc=>curr_instr, instr=>instr, pcNxtAddAmt=>addAmt);
 fdin <= curr_instr & instr;
 FD_Buffer: entity work.MynBuffer generic map (48) port map(clk => clk, rst => rst, en=>'1' , d=>fdin , q=>fdout);
@@ -89,10 +93,11 @@ ExecutionUnit: entity work.ExecutionUnit port map(clk => clk, ALUop => deout(10 
 emin <= deout(77 downto 75) & DataRes & Memadd & deout(3 downto 0);
 EM_Buffer: entity work.MynBuffer generic map (39) port map(clk => clk , rst => rst, en => '1', d => emin, q => emout);
 MM_Buffer: entity work.MynBuffer generic map (39) port map(clk => clk , rst => rst, en => '1', d => emout, q => MM);
-MemoryUnit: entity work.MemoryUnit generic map (16,10) port map(clk => clk, rst => rst, en=>'1', Readadd => emout(13 downto 4), Writeadd => emout(13 downto 4),read_en => emout(2), write_en => emout(3), write_data => emout(35 downto 20), read_data => read_data);
+MemoryUnit: entity work.MemoryUnit generic map (16,10) port map(clk => clk, rst => rst, en=>'1', Readadd => emout(13 downto 4), Writeadd => emout(13 downto 4),read_en => emout(2), write_en => emout(3), write_data => emout(35 downto 20), read_data => read_data,read_intial_loc=>read_intial_loc);
 mwbin <= MM(38 downto 36) & MM(35 downto 20) & read_data & MM(1 downto 0);
 MWB_Buffer: entity work.MynBuffer generic map (37) port map(clk => clk , rst => rst, en => '1', d => mwbin, q => mwbout);
-
+take_external<='0';
 data <= mwbout(33 downto 18) when mwbout(1) = '1' else mwbout(17 downto 2);
-
+external_pc<=  read_data when rst='1' else (others=>'0'); 
+read_intial_loc<='1' when rst='1' else '0';
 end architecture;
