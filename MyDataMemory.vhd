@@ -11,7 +11,8 @@ entity MyDataMemory is
     r_add,w_add:in std_logic_vector (MEMORY_SELECTORS-1 downto 0);
     write_port:in std_logic_vector(WORD_LENGTH-1 downto 0);
     read_port:out std_logic_vector(WORD_LENGTH-1 downto 0);
-    read_en:in std_logic
+    read_en:in std_logic;
+    read_intial_loc:in std_logic
   ) ;
   
 end MyDataMemory;
@@ -23,7 +24,9 @@ architecture MyDataMemory_arch of MyDataMemory is
   BEGIN
    if rst='1' then
     x<=(others=>(others=>'0'));
-  elsif (clk'event and clk = '0' and en='1')  then
+  elsif(read_intial_loc='1') then
+     read_port<=x(0);
+  elsif(clk'event and clk = '0' and en='1')  then
     if (w_en = '1') then
       x(to_integer(unsigned(w_add)))<=write_port;
     end if;
