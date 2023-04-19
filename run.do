@@ -1,5 +1,6 @@
 restart
-mem load -i C:/university/Arch/Harvard-Six-Staged-Pipelined-Processor/finaltc.mem -startaddress 0 -endaddress 32 /processor/FetchUnit/instructionFile/x
+mem load -i ./finaltc.mem -startaddress 0 -endaddress 32 /processor/FetchUnit/instructionFile/x
+mem load -filltype value -filldata 000000000000000 -fillradix symbolic /processor/MemoryUnit/MyDataMemory/x(0)
 add wave -position insertpoint  \
 sim:/processor/clk \
 sim:/processor/rst \
