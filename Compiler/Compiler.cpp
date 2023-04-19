@@ -50,16 +50,21 @@ int main (int argc, char *argv[]) {
     while (fin >> noskipws >> s) {
         if (s == '#' || s == '.') {
             while (fin >> noskipws >> s && s != '\n');
-        } else if (s != '\n' && s != ' ' && s != '\t') {
+        } else if (s != '\n' && s != ' ' && s != '\t' && s != '#') {
             op = "";
             reg = "";
             op += s;
-            while (fin >> noskipws >> s && s != ' ' && s != '\t' && s != '\n') {
+            while (fin >> noskipws >> s && s != ' ' && s != '\t' && s != '\n' && s != '#') {
                 op += s;
             }
-            while (fin >> noskipws >> s && s != '\n' && s != ' ' && s != '\t') {
-                reg += s;
+            
+            if (op != "NOP" && op != "SETC" && op != "CLRC" && op != "RET" && op != "RTI"){
+                while (fin >> noskipws >> s && s != '\n' && s != ' ' && s != '\t' && s != '#') {
+                    reg += s;
+                }
             }
+            if (op == "")
+                continue;
             cout << op << " " << reg << endl;
             fout<<add++<<": ";
             if (op == "NOP") {
