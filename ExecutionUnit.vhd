@@ -24,7 +24,13 @@ begin
     variable opCodeint: integer;
     variable result: std_logic_vector(16 downto 0);
     variable SPplus1: std_logic_vector(15 downto 0);
+    variable sr2: std_logic_vector(15 downto 0);
     begin
+        if(AlUsrc = '1') then
+            sr2 := imm;
+        else
+            sr2 := src2;
+        end if;
         opCodeint:=to_integer(unsigned(ALUop));
         case opCodeint is
             -- NOP
@@ -78,7 +84,7 @@ begin
             when 8 => datares<= src1;
             -- ADD Rdst, Rsrc1, Rsrc2
             when 9 => 
-                result := std_logic_vector(unsigned('0' & src1) + unsigned('0' & src2));
+                result := std_logic_vector(unsigned('0' & src1) + unsigned('0' & sr2));
                 datares<= result(15 downto 0);
                 CCRout(0) <= result(16);
                 CCRout(1) <= result(15);
@@ -91,7 +97,7 @@ begin
 
             -- SUB Rdst, Rsrc1, Rsrc2
             when 10 => 
-                result := std_logic_vector(unsigned('0' & src1) - unsigned('0' & src2));
+                result := std_logic_vector(unsigned('0' & src1) - unsigned('0' & sr2));
                 datares<= result (15 downto 0);
                 CCRout(0) <= result(16);
                 CCRout(1) <= result(15);
@@ -103,10 +109,10 @@ begin
                 end if;
             -- AND Rdst, Rsrc1, Rsrc2
             when 11 => 
-                datares<= src1 and src2;
+                datares<= src1 and sr2;
             -- OR Rdst, Rsrc1, Rsrc2
             when 12 => 
-                datares<= src1 or src2;
+                datares<= src1 or sr2;
             -- PUSH Rsrc1
             when 13 => 
                 datares <= src1;
@@ -121,7 +127,7 @@ begin
             -- STD Rsrc2, Rsrc1
             when 16 => 
                 datares<= src1;
-                memadd<= src2;
+                memadd<= sr2;
             -- JZ Rdst
             when 17 => 
                 if(CCRin(2)='1') then
@@ -156,7 +162,7 @@ begin
             -- restore flags
             -- IADD Rdst, Rsrc1, Imm
             when 30 => 
-                result := std_logic_vector(unsigned('0' & src1) + unsigned('0' & imm));
+                result := std_logic_vector(unsigned('0' & src1) + unsigned('0' & sr2));
                 datares<= result(15 downto 0);
                 CCRout(0) <= result(16);
                 CCRout(1) <= result(15);
@@ -167,7 +173,7 @@ begin
                     CCRout(2) <= '0';
                 end if;
             -- LDM Rdst, Imm
-            when 31 => datares<= imm;
+            when 31 => datares<= sr2;
 
             when others=> datares<=(others=>'0'); 
         end case;
