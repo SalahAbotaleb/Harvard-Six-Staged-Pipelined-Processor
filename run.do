@@ -5,10 +5,13 @@ add wave -position insertpoint  \
 sim:/processor/clk \
 sim:/processor/rst \
 sim:/processor/inPort \
-sim:/processor/curr_instr \
-sim:/processor/deout \
-sim:/processor/AluCCRout \
-sim:/processor/mwbout
+sim:/processor/outPort \
+sim:/processor/CCR_Buffer/q \
+sim:/processor/SP_Buffer/q \
+sim:/processor/pc/ci \
+sim:/processor/RegFile/x \
+sim:/processor/MemoryUnit/read_data
+
 force rst 1
 force -freeze sim:/processor/clk 1 0, 0 {50 ps} -r 100
 run
