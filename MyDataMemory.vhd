@@ -7,7 +7,7 @@ entity MyDataMemory is
   MEMORY_SELECTORS:integer:=16
   );
   port (
-    clk,rst,w_en,en:in std_logic;
+    clk,w_en,en:in std_logic;
     r_add,w_add:in std_logic_vector (MEMORY_SELECTORS-1 downto 0);
     write_port:in std_logic_vector(WORD_LENGTH-1 downto 0);
     read_port:out std_logic_vector(WORD_LENGTH-1 downto 0);
@@ -20,11 +20,9 @@ architecture MyDataMemory_arch of MyDataMemory is
   type ram_type is array (0 to (2**MEMORY_SELECTORS)-1) of std_logic_vector (WORD_LENGTH-1 downto 0);
   signal x: ram_type;
   begin
-  process(clk,rst)
+  process(clk)
   BEGIN
-   if rst='1' then
-    x<=(others=>(others=>'0'));
-  elsif(read_intial_loc='1') then
+  if(read_intial_loc='1') then
      read_port<=x(0);
   elsif(clk'event and clk = '0' and en='1')  then
     if (w_en = '1') then
