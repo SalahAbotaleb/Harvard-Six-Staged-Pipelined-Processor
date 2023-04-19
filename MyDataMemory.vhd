@@ -24,11 +24,12 @@ architecture MyDataMemory_arch of MyDataMemory is
   BEGIN
   if(read_intial_loc='1') then
      read_port<=x(0);
-  elsif(clk'event and clk = '0' and en='1')  then
+  elsif(clk'event and clk = '1' and en='1')  then
     if (w_en = '1') then
       x(to_integer(unsigned(w_add)))<=write_port;
     end if;
-    if (read_en'event and read_en = '1') then
+    if (read_en = '1') then
+    --read_en'event and read_en = '1'
     -- if (read_en'event and read_en = '1') then
     --   x(to_integer(unsigned(w_add)))<=write_port;
       read_port<=x(to_integer(unsigned(r_add)));
