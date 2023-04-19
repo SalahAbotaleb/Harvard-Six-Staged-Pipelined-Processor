@@ -109,10 +109,26 @@ begin
                 end if;
             -- AND Rdst, Rsrc1, Rsrc2
             when 11 => 
-                datares<= src1 and sr2;
+                result := '0' & src1 and '0' & sr2;
+                datares<= result(15 downto 0);
+                CCRout(1) <= result(15);
+                if (result(15 downto 0) = (15 downto 0 => '0'))
+                then
+                    CCRout(2) <= '1';
+                else
+                    CCRout(2) <= '0';
+                end if;
             -- OR Rdst, Rsrc1, Rsrc2
             when 12 => 
-                datares<= src1 or sr2;
+                result := '0' & src1 or '0' & sr2;
+                datares<= result(15 downto 0);
+                CCRout(1) <= result(15);
+                if (result(15 downto 0) = (15 downto 0 => '0'))
+                then
+                    CCRout(2) <= '1';
+                else
+                    CCRout(2) <= '0';
+                end if;
             -- PUSH Rsrc1
             when 13 => 
                 datares <= src1;
