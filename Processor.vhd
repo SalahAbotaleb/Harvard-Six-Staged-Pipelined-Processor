@@ -93,7 +93,7 @@ ExecutionUnit: entity work.ExecutionUnit port map(clk => clk, ALUop => deout(10 
 emin <= deout(77 downto 75) & DataRes & Memadd & deout(3 downto 0);
 EM_Buffer: entity work.MynBuffer generic map (39) port map(clk => clk , rst => rst, en => '1', d => emin, q => emout);
 MM_Buffer: entity work.MynBuffer generic map (39) port map(clk => clk , rst => rst, en => '1', d => emout, q => MM);
-MemoryUnit: entity work.MemoryUnit generic map (16,10) port map(clk => clk, rst => rst, en=>'1', Readadd => emout(13 downto 4), Writeadd => emout(13 downto 4),read_en => emout(2), write_en => emout(3), write_data => emout(35 downto 20), read_data => read_data,read_intial_loc=>read_intial_loc);
+MemoryUnit: entity work.MemoryUnit generic map (16,10) port map(clk => clk, en=>'1', Readadd => emout(13 downto 4), Writeadd => emout(13 downto 4),read_en => emout(2), write_en => emout(3), write_data => emout(35 downto 20), read_data => read_data,read_intial_loc=>read_intial_loc);
 mwbin <= MM(38 downto 36) & MM(35 downto 20) & read_data & MM(1 downto 0);
 MWB_Buffer: entity work.MynBuffer generic map (37) port map(clk => clk , rst => rst, en => '1', d => mwbin, q => mwbout);
 take_external<='0';

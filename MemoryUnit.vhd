@@ -6,7 +6,6 @@ entity MemoryUnit is
     MEMORY_SELECTORS:integer:=16);
     port (
         clk : in std_logic;
-        rst:in std_logic; --this reset intialize the Register File to 0
         en: in std_logic;
         Readadd: in std_logic_vector(MEMORY_SELECTORS-1 downto 0);
         Writeadd: in std_logic_vector(MEMORY_SELECTORS-1 downto 0);
@@ -20,5 +19,5 @@ end MemoryUnit;
 
 architecture MemoryUnitArch of MemoryUnit is
     begin
-        MyDataMemory: entity work.MyDataMemory generic map(WORD_LENGTH,MEMORY_SELECTORS) port map(clk=>clk, rst=>rst, w_en=>write_en, r_add =>Readadd , w_add=>Writeadd, write_port=>write_data, read_port=>read_data, read_en=>read_en,en=>en,read_intial_loc=>read_intial_loc);
+        MyDataMemory: entity work.MyDataMemory generic map(WORD_LENGTH,MEMORY_SELECTORS) port map(clk=>clk, w_en=>write_en, r_add =>Readadd , w_add=>Writeadd, write_port=>write_data, read_port=>read_data, read_en=>read_en,en=>en,read_intial_loc=>read_intial_loc);
 end architecture;
