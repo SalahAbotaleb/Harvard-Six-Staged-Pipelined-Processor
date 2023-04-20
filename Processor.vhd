@@ -5,6 +5,7 @@ entity Processor is
     port (
         clk : in std_logic;
         rst : in std_logic;
+        interupt : in std_logic;
         inPort: in std_logic_vector(15 downto 0);
         outPort: out std_logic_vector(15 downto 0)
     );
@@ -49,6 +50,7 @@ signal read_intial_loc:std_logic;
 --20 downto 18      --read address 2
 -----------------------------------------------
 ------------------dein-------------------------
+--78		        --RetBranch
 --77 downto 59      --write back address
 --74 downto 59      --current instruction (PC)
 --58 downto 43      --immediate
@@ -62,7 +64,8 @@ signal read_intial_loc:std_logic;
 --1                 --MemtoReg
 --0                 --RegWrite
 -----------------------------------------------
-----------------emin / MM-----------------------
+----------------emin / MM----------------------
+--39		        -- RetBranch
 --38 downto 36      --write back address
 --35 downto 20      --DataRes
 --19 downto 4       --Memadd    (13 downto 4)
