@@ -87,8 +87,8 @@ RegFile: entity work.MyMemory generic map (16,3) port map(clk => clk, rst => rst
 ControlUnit: entity work.ControlUnit port map(opcode => fdout(31 downto 27), AlUop => AlUop, AlUsrc => AlUsrc, RegDst => RegDst, MEMWrite => MEMWrite, MEMRead => MEMRead, MemtoReg => MemtoReg, RegWrite => RegWrite,RetBranch=>RetBranch);
 dein <= RetBranch & fdout(26 downto 24) & fdout(47 downto 32) & fdout(15 downto 0) & read_port_rs & read_port_rt & AlUop & AlUsrc & RegDst & MEMWrite & MEMRead & MemtoReg & RegWrite;
 DE_Buffer: entity work.MynBuffer generic map (79) port map(clk => clk , rst => rst, en => '1', d => dein, q => deout);
-CCR_Buffer: entity work.MynBuffer_falling generic map (3) port map(clk => clk , rst => rst, en => '1', d => AluCCRout, q => AluCCRin);
-SP_Buffer: entity work.MynBuffer_falling generic map (16) port map(clk => clk , rst => rst, en => '1', d => SPout, q => SPin);
+CCR_Buffer: entity work.MynBuffer generic map (3) port map(clk => clk , rst => rst, en => '1', d => AluCCRout, q => AluCCRin);
+SP_Buffer: entity work.Stackregister generic map (16) port map(clk => clk , rst => rst, en => '1', d => SPout, q => SPin);
 ExecutionUnit: entity work.ExecutionUnit port map(clk => clk, ALUop => deout(10 downto 6), src1 => deout(42 downto 27) ,src2 => deout(26 downto 11), imm => deout(58 downto 43), ALUsrc => deout(5), RegDst => deout(4),inPort => inPort, datares => DataRes, memadd => Memadd, CCRout => AluCCRout, CCRin => AluCCRin, SPin =>SPin, SPout=> SPout, PCin => deout(74 downto 59));
 emin <= deout(78 downto 75) & DataRes & Memadd & deout(3 downto 0);
 EM_Buffer: entity work.MynBuffer generic map (40) port map(clk => clk , rst => rst, en => '1', d => emin, q => emout);

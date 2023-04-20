@@ -10,10 +10,10 @@ entity ExecutionUnit is
         inPort: in std_logic_vector(15 downto 0);
         outPort: out std_logic_vector(15 downto 0);
         datares, memadd:out std_logic_vector(15 downto 0);
-        CCRout: out std_logic_vector(2 downto 0); -- Z(zero flag) | N(Negative flag) | C(Carry Flag)
+        CCRout: out std_logic_vector(2 downto 0) := "000" ; -- Z(zero flag) | N(Negative flag) | C(Carry Flag)
         CCRin: in std_logic_vector(2 downto 0); -- Z(zero flag) | N(Negative flag) | C(Carry Flag)
         SPin: in std_logic_vector(15 downto 0);
-        SPout: out std_logic_vector(15 downto 0);
+        SPout: out std_logic_vector(15 downto 0) := std_logic_vector(to_unsigned(1023,16));
         PCin: in std_logic_vector(15 downto 0)
     );
 end ExecutionUnit;
