@@ -44,8 +44,15 @@ string hex2bin (char x) {
 }
 
 void encode (const vector<string> &op, const vector<string> &reg, ofstream &fout) {
+    int counter = 0;
     for (int i = 0; i < op.size(); i++) {
-        fout << "\t" << i << ": ";
+        
+        if (op[i] == ".ORG") {
+            counter = stoi(reg[i]);
+            continue;
+        } else {
+            fout << "\t" << counter << ": ";
+        }
         if (op[i] == "NOP") {
             fout << "0000000000000000" << endl;
         } else if (op[i] == "SETC") {
@@ -108,25 +115,31 @@ void encode (const vector<string> &op, const vector<string> &reg, ofstream &fout
         } else if (op[i] == "RTI") {
             fout << "1011000000000000" << endl;
         } else if (op[i] == "IADD") {
-            fout << "11110" << bitset<3>(reg[i][1] - '0').to_string() << bitset<3>(reg[i][4] - '0').to_string() << "00000"
-                 << endl;
-            fout << hex2bin(reg[i][6]) + hex2bin(reg[i][7]) + hex2bin(reg[i][8]) + hex2bin(reg[i][9]) << endl;
+            fout << "11110" << bitset<3>(reg[i][1] - '0').to_string() << bitset<3>(reg[i][4] - '0').to_string()
+                 << "00000" << endl;
+            counter++;
+            fout << "\t" << counter << ": "
+                 << hex2bin(reg[i][6]) + hex2bin(reg[i][7]) + hex2bin(reg[i][8]) + hex2bin(reg[i][9]) << endl;
         } else if (op[i] == "LDM") {
             fout << "11111" << bitset<3>(reg[i][1] - '0').to_string() << "00000000" << endl;
-            fout << hex2bin(reg[i][4]) + hex2bin(reg[i][5]) + hex2bin(reg[i][6]) + hex2bin(reg[i][7]) << endl;
+            counter++;
+            fout << "\t" << counter << ": "
+                 << hex2bin(reg[i][3]) + hex2bin(reg[i][4]) + hex2bin(reg[i][5]) + hex2bin(reg[i][6]) << endl;
         }
+        counter++;
     }
+    
 }
 
 void checksyntax (const string &op, const string &reg) {
     if (op != "NOP" && op != "SETC" && op != "CLRC" && op != "RET" && op != "RTI" && op != "INC" && op != "DEC" &&
         op != "OUT" && op != "IN" && op != "PUSH" && op != "POP" && op != "JZ" && op != "JC" && op != "JMP" &&
         op != "CALL" && op != "IADD" && op != "MOV" && op != "ADD" && op != "SUB" && op != "AND" && op != "OR" &&
-        op != "LDD" && op != "STD" && op != "NOT" && op != "LDM" && op != "CALL") {
+        op != "LDD" && op != "STD" && op != "NOT" && op != "LDM" && op != "CALL" && op != ".ORG") {
         throw runtime_error(op + " is not a valid instruction.");
     }
     
-    if (op != "NOP" && op != "SETC" && op != "CLRC" && op != "RET" && op != "RTI") {
+    if (op != "NOP" && op != "SETC" && op != "CLRC" && op != "RET" && op != "RTI" && op != ".ORG") {
         if (reg[0] != 'R' || reg[1] - '0' < 0 || reg[1] - '0' > 7) {
             throw runtime_error("Invalid register.");
         }
@@ -159,7 +172,7 @@ void readcode (ifstream &fin, vector<string> &oper, vector<string> &registers) {
     char s;
     string op, reg;
     while (fin >> noskipws >> s) {
-        if (s == '#' || s == '.') {
+        if (s == '#') {
             while (fin >> noskipws >> s && s != '\n');
         } else if (s != '\n' && s != ' ' && s != '\t' && s != '#') {
             op = "";
@@ -187,21 +200,8 @@ void readcode (ifstream &fin, vector<string> &oper, vector<string> &registers) {
             
             oper.push_back(op);
             registers.push_back(reg);
-            if (s == '#' || s == '.')
+            if (s == '#')
                 while (fin >> noskipws >> s && s != '\n');
-        }
-    }
-}
-
-void reordering (vector<string> &oper, vector<string> &registers) {
-    for (int i = 0; i < oper.size(); i++) {
-        if (oper[i] == "JZ" || oper[i] == "JC" || oper[i] == "JMP" || oper[i] == "CALL") {
-            int j = i + 1;
-            while (oper[j] != "NOP") {
-                j++;
-            }
-            swap(oper[i], oper[j]);
-            swap(registers[i], registers[j]);
         }
     }
 }
@@ -214,7 +214,6 @@ int main (int argc, char *argv[]) {
     vector<string> registers;
     
     readcode(fin, oper, registers);
-    reordering(oper, registers);
     encode(oper, registers, fout);
     
     return 0;
