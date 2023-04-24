@@ -37,6 +37,8 @@ string hex2bin (char x) {
             return "1110";
         case 'F':
             return "1111";
+        default:
+            return "-1";
     }
     return {};
 }
@@ -109,16 +111,47 @@ void encode (const vector<string> &op, const vector<string> &reg, ofstream &fout
             fout << "1" << bitset<3>(reg[i][1] - '0').to_string() << bitset<3>(reg[i][4] - '0').to_string() << "00000"
                  << endl;
             fout << hex2bin(reg[i][6]) + hex2bin(reg[i][7]) + hex2bin(reg[i][8]) + hex2bin(reg[i][9]) << endl;
+        } else if (op[i] == "LDM") {
+            fout << "10111" << bitset<3>(reg[i][1] - '0').to_string() << "00000000" << endl;
+            fout << hex2bin(reg[i][4]) + hex2bin(reg[i][5]) + hex2bin(reg[i][6]) + hex2bin(reg[i][7]) << endl;
         }
     }
 }
 
-void checksyntax (const string &op) {
+void checksyntax (const string &op, const string &reg) {
     if (op != "NOP" && op != "SETC" && op != "CLRC" && op != "RET" && op != "RTI" && op != "INC" && op != "DEC" &&
         op != "OUT" && op != "IN" && op != "PUSH" && op != "POP" && op != "JZ" && op != "JC" && op != "JMP" &&
         op != "CALL" && op != "IADD" && op != "MOV" && op != "ADD" && op != "SUB" && op != "AND" && op != "OR" &&
         op != "LDD" && op != "STD" && op != "NOT" && op != "LDM" && op != "CALL") {
         throw runtime_error(op + " is not a valid instruction.");
+    }
+    
+    if (op != "NOP" && op != "SETC" && op != "CLRC" && op != "RET" && op != "RTI") {
+        if (reg[0] != 'R' || reg[1] - '0' < 0 || reg[1] - '0' > 7) {
+            throw runtime_error("Invalid register.");
+        }
+        if (op != "OUT" && op != "IN" && op != "PUSH" && op != "POP" && op != "JZ" && op != "JC" && op != "JMP" &&
+            op != "CALL" && op != "LDM") {
+            if (reg[2] != ',' || reg[3] != 'R' || reg[4] - '0' < 0 || reg[4] - '0' > 7) {
+                throw runtime_error("Invalid register.");
+            }
+            if (op != "IADD" && op != "LDD" && op != "STD" && op != "MOV" && op != "NOT" &&
+                op != "INC" && op != "DEC") {
+                if (reg[5] != ',' || reg[6] != 'R' || reg[7] - '0' < 0 || reg[7] - '0' > 7) {
+                    throw runtime_error("Invalid register.");
+                }
+            } else if (op == "IADD") {
+                if (reg[5] != ',' || hex2bin(reg[6]) == "-1" || hex2bin(reg[7]) == "-1" || hex2bin(reg[8]) == "-1" ||
+                    hex2bin(reg[9]) == "-1") {
+                    throw runtime_error("Invalid immediate value.");
+                }
+            }
+        } else if (op == "LDM") {
+            if (reg[2] != ',' || hex2bin(reg[3]) == "-1" || hex2bin(reg[4]) == "-1" || hex2bin(reg[5]) == "-1" ||
+                hex2bin(reg[6]) == "-1") {
+                throw runtime_error("Invalid immediate value.");
+            }
+        }
     }
 }
 
@@ -139,19 +172,23 @@ void readcode (ifstream &fin, vector<string> &oper, vector<string> &registers) {
             }
             
             if (op != "NOP" && op != "SETC" && op != "CLRC" && op != "RET" && op != "RTI") {
-                while (fin >> noskipws >> s && s != '\n' && s != ' ' && s != '\t' && s != '#') {
+                while (fin >> noskipws >> s && s != '\n' && s != '#') {
+                    if (s == ' ' || s == '\t') continue;
+                    s = toupper(s);
                     reg += s;
+                    
                 }
             }
             if (op == "")
                 continue;
             
-            checksyntax(op);
+            checksyntax(op, reg);
             cout << op << " " << reg << endl;
             
             oper.push_back(op);
             registers.push_back(reg);
-            
+            if (s == '#' || s == '.')
+                while (fin >> noskipws >> s && s != '\n');
         }
     }
 }
