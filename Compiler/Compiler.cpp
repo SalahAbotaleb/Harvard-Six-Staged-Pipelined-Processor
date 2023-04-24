@@ -108,11 +108,11 @@ void encode (const vector<string> &op, const vector<string> &reg, ofstream &fout
         } else if (op[i] == "RTI") {
             fout << "1011000000000000" << endl;
         } else if (op[i] == "IADD") {
-            fout << "1" << bitset<3>(reg[i][1] - '0').to_string() << bitset<3>(reg[i][4] - '0').to_string() << "00000"
+            fout << "11110" << bitset<3>(reg[i][1] - '0').to_string() << bitset<3>(reg[i][4] - '0').to_string() << "00000"
                  << endl;
             fout << hex2bin(reg[i][6]) + hex2bin(reg[i][7]) + hex2bin(reg[i][8]) + hex2bin(reg[i][9]) << endl;
         } else if (op[i] == "LDM") {
-            fout << "10111" << bitset<3>(reg[i][1] - '0').to_string() << "00000000" << endl;
+            fout << "11111" << bitset<3>(reg[i][1] - '0').to_string() << "00000000" << endl;
             fout << hex2bin(reg[i][4]) + hex2bin(reg[i][5]) + hex2bin(reg[i][6]) + hex2bin(reg[i][7]) << endl;
         }
     }
