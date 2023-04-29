@@ -118,13 +118,43 @@ void encode (const vector<string> &op, const vector<string> &reg, ofstream &fout
             fout << "11110" << bitset<3>(reg[i][1] - '0').to_string() << bitset<3>(reg[i][4] - '0').to_string()
                  << "00000" << endl;
             counter++;
-            fout << "\t" << counter << ": "
-                 << hex2bin(reg[i][6]) + hex2bin(reg[i][7]) + hex2bin(reg[i][8]) + hex2bin(reg[i][9]) << endl;
+            fout << "\t" << counter << ": ";
+            if (reg[i].size() == 7)
+                fout << "000000000000";
+            else if (reg[i].size() == 8)
+                fout << "00000000";
+            else if (reg[i].size() == 9)
+                fout << "0000";
+            for (int j = 6; j < reg[i].size(); ++j) {
+                fout << hex2bin(reg[i][j]);
+            }
+            fout << endl;
         } else if (op[i] == "LDM") {
             fout << "11111" << bitset<3>(reg[i][1] - '0').to_string() << "00000000" << endl;
             counter++;
-            fout << "\t" << counter << ": "
-                 << hex2bin(reg[i][3]) + hex2bin(reg[i][4]) + hex2bin(reg[i][5]) + hex2bin(reg[i][6]) << endl;
+            fout << "\t" << counter << ": ";
+            if (reg[i].size() == 4)
+                fout << "000000000000";
+            else if (reg[i].size() == 5)
+                fout << "00000000";
+            else if (reg[i].size() == 6)
+                fout << "0000";
+            for (int j = 3; j < reg[i].size(); ++j) {
+                fout << hex2bin(reg[i][j]);
+            }
+            fout << endl;
+        } else {
+            if (op[i].size() == 1) {
+                fout << "000000000000";
+            } else if (op[i].size() == 2) {
+                fout << "00000000";
+            } else if (op[i].size() == 3) {
+                fout << "0000";
+            }
+            for (int j = 0; j < op[i].size(); ++j) {
+                fout << hex2bin(op[i][j]);
+            }
+            fout << endl;
         }
         counter++;
     }
@@ -132,13 +162,20 @@ void encode (const vector<string> &op, const vector<string> &reg, ofstream &fout
 }
 
 void checksyntax (const string &op, const string &reg) {
+    bool number = false;
     if (op != "NOP" && op != "SETC" && op != "CLRC" && op != "RET" && op != "RTI" && op != "INC" && op != "DEC" &&
         op != "OUT" && op != "IN" && op != "PUSH" && op != "POP" && op != "JZ" && op != "JC" && op != "JMP" &&
         op != "CALL" && op != "IADD" && op != "MOV" && op != "ADD" && op != "SUB" && op != "AND" && op != "OR" &&
         op != "LDD" && op != "STD" && op != "NOT" && op != "LDM" && op != "CALL" && op != ".ORG") {
-        throw runtime_error(op + " is not a valid instruction.");
+        for (int i = 0; i < op.size(); ++i) {
+            if (op[i] - '0' < 0 && op[i] - '0' > 9 && op[i] - '0' != 'A' && op[i] - '0' != 'B' && op[i] - '0' != 'C' &&
+                op[i] - '0' != 'D' && op[i] - '0' != 'E' && op[i] - '0' != 'F') {
+                throw runtime_error(op + " is not a valid instruction.");
+            }
+        }
+        number = true;
     }
-    
+    if (number) return;
     if (op != "NOP" && op != "SETC" && op != "CLRC" && op != "RET" && op != "RTI" && op != ".ORG") {
         if (reg[0] != 'R' || reg[1] - '0' < 0 || reg[1] - '0' > 7) {
             throw runtime_error("Invalid register.");
@@ -154,15 +191,21 @@ void checksyntax (const string &op, const string &reg) {
                     throw runtime_error("Invalid register.");
                 }
             } else if (op == "IADD") {
-                if (reg[5] != ',' || hex2bin(reg[6]) == "-1" || hex2bin(reg[7]) == "-1" || hex2bin(reg[8]) == "-1" ||
-                    hex2bin(reg[9]) == "-1") {
-                    throw runtime_error("Invalid immediate value.");
+                if (reg[5] != ',') {
+                    for (int i = 6; i < reg.size(); ++i) {
+                        if (hex2bin(reg[i]) == "-1") {
+                            throw runtime_error("Invalid immediate value.");
+                        }
+                    }
                 }
             }
         } else if (op == "LDM") {
-            if (reg[2] != ',' || hex2bin(reg[3]) == "-1" || hex2bin(reg[4]) == "-1" || hex2bin(reg[5]) == "-1" ||
-                hex2bin(reg[6]) == "-1") {
-                throw runtime_error("Invalid immediate value.");
+            if (reg[2] != ',') {
+                for (int i = 3; i < reg.size(); ++i) {
+                    if (hex2bin(reg[i]) == "-1") {
+                        throw runtime_error("Invalid immediate value.");
+                    }
+                }
             }
         }
     }
