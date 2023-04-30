@@ -43,12 +43,33 @@ string hex2bin (char x) {
     return {};
 }
 
+int hex2dec(string hexVal)
+{
+    int len = hexVal.size();
+    int base = 1;
+    
+    int dec_val = 0;
+    
+    for (int i = len - 1; i >= 0; i--) {
+        if (hexVal[i] >= '0' && hexVal[i] <= '9') {
+            dec_val += (int(hexVal[i]) - 48) * base;
+            base = base * 16;
+        }
+
+        else if (hexVal[i] >= 'A' && hexVal[i] <= 'F') {
+            dec_val += (int(hexVal[i]) - 55) * base;
+            base = base * 16;
+        }
+    }
+    return dec_val;
+}
+
 void encode (const vector<string> &op, const vector<string> &reg, ofstream &fout) {
     int counter = 0;
     for (int i = 0; i < op.size(); i++) {
         
         if (op[i] == ".ORG") {
-            counter = stoi(reg[i]);
+            counter = hex2dec(reg[i]);
             continue;
         } else {
             fout << "\t" << counter << ": ";
