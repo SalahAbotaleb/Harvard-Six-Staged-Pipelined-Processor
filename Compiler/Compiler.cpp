@@ -248,14 +248,29 @@ void readcode (ifstream &fin, vector<string> &oper, vector<string> &registers) {
         }
     }
 }
+void initial(ofstream &fout,string memory_instance_path){
+    fout<<"// memory data file (do not edit the following line - required for mem load use)\n";
+    fout<<"// instance="+memory_instance_path+'\n';
+    fout<<"// format=mti addressradix=d dataradix=s version=1.0 wordsperline=1"<<endl;
+}
+int main () {
+    string input_file_name,output_file_name,memory_instance_path;
+    cout<<"Welecome to Assembler :) \n";
 
-int main (int argc, char *argv[]) {
-    ifstream fin(argv[1] + string(".asm"));
-    ofstream fout(argv[2] + string(".mem"));
-    
+    cout<<"Enter the name of input file: ";
+    cin>>input_file_name;
+    cout<<"Enter the name of output file: ";
+    cin>>output_file_name;
+    cout<<"Enter the path of memory instance (ex. /processor/FetchUnit/instructionFile/x): ";
+    cin>>memory_instance_path;
+    cout<<endl;
+    ifstream fin(input_file_name);
+    ofstream fout(output_file_name);
+
     vector<string> oper;
     vector<string> registers;
-    
+
+    initial(fout,memory_instance_path);
     readcode(fin, oper, registers);
     encode(oper, registers, fout);
     
