@@ -23,8 +23,8 @@ signal read_port_rt : std_logic_vector(15 downto 0);
 signal data : std_logic_vector(15 downto 0);
 signal ALUop : std_logic_vector(4 downto 0);
 signal ALUsrc,RegDst,MEMWrite,MEMRead,MemtoReg,RegWrite : std_logic;
-signal dein : std_logic_vector(78 downto 0);
-signal deout : std_logic_vector(78 downto 0);
+signal dein : std_logic_vector(84 downto 0);
+signal deout : std_logic_vector(84 downto 0);
 signal DataRes : std_logic_vector(15 downto 0);
 signal Memadd : std_logic_vector(15 downto 0);
 signal AluCCRout : std_logic_vector(2 downto 0);
@@ -41,6 +41,11 @@ signal RetBranch: std_logic;
 signal external_pc:std_logic_vector(15 downto 0);
 signal take_external:std_logic;
 signal read_intial_loc:std_logic;
+signal sel1:std_logic_vector(1 downto 0);
+signal sel2:std_logic_vector(1 downto 0);
+signal Srcdata1:std_logic_vector(15 downto 0);
+signal Srcdata2:std_logic_vector(15 downto 0);
+
 -----------------------------------------------
 ------------------fdin------------------------
 --47 downto 32      --current instruction (PC)
@@ -50,6 +55,8 @@ signal read_intial_loc:std_logic;
 --20 downto 18      --read address 2
 -----------------------------------------------
 ------------------dein-------------------------
+--84 downto 82      --read address 1
+--81 downto 79      --read address 2
 --78		        --RetBranch
 --77 downto 59      --write back address
 --74 downto 59      --current instruction (PC)
@@ -75,7 +82,7 @@ signal read_intial_loc:std_logic;
 --0                 --RegWrite
 -----------------------------------------------
 ------------------mwbin------------------------
---36 downto 34      --write back address    
+--36 downto 34       --write back address    
 --33 downto 18       --DataRes
 --17 downto 2        --read_data
 --1                  --MemtoReg
@@ -88,11 +95,11 @@ fdin <= curr_instr & instr;
 FD_Buffer: entity work.MynBuffer generic map (48) port map(clk => clk, rst => rst, en=>'1' , d=>fdin , q=>fdout);
 RegFile: entity work.MyMemory generic map (16,3) port map(clk => clk, rst => rst, w_en => mwbout(0), r_add1 => fdout(23 downto 21), r_add2 => fdout(20 downto 18), w_add =>mwbout(36 downto 34), write_port => data, read_port_rs => read_port_rs, read_port_rt => read_port_rt);
 ControlUnit: entity work.ControlUnit port map(opcode => fdout(31 downto 27), AlUop => AlUop, AlUsrc => AlUsrc, RegDst => RegDst, MEMWrite => MEMWrite, MEMRead => MEMRead, MemtoReg => MemtoReg, RegWrite => RegWrite,RetBranch=>RetBranch);
-dein <= RetBranch & fdout(26 downto 24) & fdout(47 downto 32) & fdout(15 downto 0) & read_port_rs & read_port_rt & AlUop & AlUsrc & RegDst & MEMWrite & MEMRead & MemtoReg & RegWrite;
-DE_Buffer: entity work.MynBuffer generic map (79) port map(clk => clk , rst => rst, en => '1', d => dein, q => deout);
+dein <= fdout(23 downto 21) & fdout(20 downto 18) & RetBranch & fdout(26 downto 24) & fdout(47 downto 32) & fdout(15 downto 0) & read_port_rs & read_port_rt & AlUop & AlUsrc & RegDst & MEMWrite & MEMRead & MemtoReg & RegWrite;
+DE_Buffer: entity work.MynBuffer generic map (85) port map(clk => clk , rst => rst, en => '1', d => dein, q => deout);
 CCR_Buffer: entity work.MynBuffer generic map (3) port map(clk => clk , rst => rst, en => '1', d => AluCCRout, q => AluCCRin);
 SP_Buffer: entity work.Stackregister generic map (16) port map(clk => clk , rst => rst, en => '1', d => SPout, q => SPin);
-ExecutionUnit: entity work.ExecutionUnit port map(clk => clk, ALUop => deout(10 downto 6), src1 => deout(42 downto 27) ,src2 => deout(26 downto 11), imm => deout(58 downto 43), ALUsrc => deout(5), RegDst => deout(4),inPort => inPort, datares => DataRes, memadd => Memadd, CCRout => AluCCRout, CCRin => AluCCRin, SPin =>SPin, SPout=> SPout, PCin => deout(74 downto 59));
+ExecutionUnit: entity work.ExecutionUnit port map(clk => clk, ALUop => deout(10 downto 6), src1 => Srcdata1 ,src2 => Srcdata2, imm => deout(58 downto 43), ALUsrc => deout(5), RegDst => deout(4),inPort => inPort, datares => DataRes, memadd => Memadd, CCRout => AluCCRout, CCRin => AluCCRin, SPin =>SPin, SPout=> SPout, PCin => deout(74 downto 59));
 emin <= deout(78 downto 75) & DataRes & Memadd & deout(3 downto 0);
 EM_Buffer: entity work.MynBuffer generic map (40) port map(clk => clk , rst => rst, en => '1', d => emin, q => emout);
 MM_Buffer: entity work.MynBuffer generic map (40) port map(clk => clk , rst => rst, en => '1', d => emout, q => MM);
@@ -103,4 +110,8 @@ take_external<='0';
 data <= mwbout(33 downto 18) when mwbout(1) = '1' else mwbout(17 downto 2);
 external_pc<=  read_data when rst='1' else (others=>'0'); 
 read_intial_loc<='1' when rst='1' else '0';
+FullForwardingUnit: entity work.FullForwardingUnit port map(srcadd1 => deout(84 downto 82), srcadd2 => deout(81 downto 79), RegWrite_ALU => emout(0), RegWrite_M1 => MM(0), RegWrite_M2 => mwbout(0), rd_ALU_M1 => emout(38 downto 36), rd_M1_M2 => MM(38 downto 36), rd_M2_Wb => mwbout(36 downto 34), sel1 => sel1, sel2 => sel2);
+
+Srcdata1 <= deout(42 downto 27) when sel1 = "00" else emout(35 downto 20) when sel1 = "01" else MM(35 downto 20) when sel1 = "10" else mwbout(33 downto 18);
+Srcdata2 <= deout(26 downto 11) when sel2 = "00" else emout(35 downto 20) when sel2 = "01" else MM(35 downto 20) when sel2 = "10" else mwbout(33 downto 18);
 end architecture;

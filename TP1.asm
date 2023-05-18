@@ -1,13 +1,17 @@
-.org 0
-IN R5                        #R5= FFFE --> add FFFE on the in port, flags no change   
+.org 50
+IN    R5                       #R5= FFFE --> add FFFE on the in port, flags no change   
 NOP
+LDM R5,9001        #R5 = 0001, C--> 0, N --> 0, Z --> 0
 NOP     
 NOP
-INC R5,R5                 #R5 = FFFF, C--> 0, N --> 1, Z --> 0
+.org 200
+INC r5,R5                 #R5 = FFFF, C--> 0, N --> 1, Z --> 0
 NOP
 NOP
-NOP
-INC R5,R5                 #R5 = 0000, C--> 1, N --> 0, Z --> 1
+nop
+.org 0
+ret
+inc R5     ,R5                 #R5 = 0000, C--> 1, N --> 0, Z --> 1
 IN R1                        #R1= 0001 --> add 0001 on the in port, flags no change        
 IN R2                        #R2= 000F -> add 000F on the in port, flags no change        
 IN R3                        #R3= 00C8 -> add 00C8 on the in port, flags no change        
