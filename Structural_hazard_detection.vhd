@@ -16,7 +16,7 @@ begin
 process(MemReadAlu,MemWriteAlu,MemReadMem1,MemWriteMem1)
 variable opCodeint:integer;
 begin
-    if((MemReadAlu=1 or MemWriteAlu=1) and (MemReadMem1=1 or MemWriteMem1=1)) then
+    if((MemReadAlu = '1' or MemWriteAlu = '1') and (MemReadMem1 = '1' or MemWriteMem1 = '1')) then
         stall<='1';
     else
         stall<='0';
