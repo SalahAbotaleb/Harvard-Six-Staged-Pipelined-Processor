@@ -17,6 +17,7 @@ signal CCRout: std_logic_vector(2 downto 0); -- Z(zero flag) | N(Negative flag) 
 signal CCRin: std_logic_vector(2 downto 0); -- Z(zero flag) | N(Negative flag) | C(Carry Flag)
 signal SPin: std_logic_vector(15 downto 0);
 signal SPout: std_logic_vector(15 downto 0);
+signal PCin: std_logic_vector(15 downto 0);
 
 Begin
     alu: entity work.ExecutionUnit port map (
@@ -29,12 +30,13 @@ Begin
         RegDst => RegDst,
         inPort => inPort,
         outPort => outPort,
-        res1 => res1,
-        res2 => res2,
+        datares => res1,
+        memadd => res2,
         CCRout => CCRout,
         CCRin => CCRin,
         SPin => SPin,
-        SPout => SPout
+        SPout => SPout,
+        PCin => PCin
     );
 
     src1 <= b"1010101010101010";
