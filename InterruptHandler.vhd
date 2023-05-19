@@ -77,10 +77,6 @@ begin
             selectPCinterrupt <= '1';
             pc_enable<='1';
             inProcess<='0';
-        else
-            selectPCinterrupt <= '0';
-            selectSPinterrupt <= '0';
-            inProcess<='0';
         end if;
 
         --     if(currCounter=0 and intr = '1') then 
