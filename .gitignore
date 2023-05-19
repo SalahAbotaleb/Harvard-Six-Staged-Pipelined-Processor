@@ -33,3 +33,6 @@ Compiler/.idea/modules.xml
 Compiler/.idea/vcs.xml
 Compiler/cmake-build-debug
 Compiler/cmake-build-release
+
+# ignore personal script files
+*.ps1

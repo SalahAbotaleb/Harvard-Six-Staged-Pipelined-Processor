@@ -16,12 +16,12 @@ end Load_Use;
 
 architecture Load_UseArch of Load_Use is
 begin
-process(Rsrc1,Rsc2,RdAlu,MemReadAlu,Register_WriteAlu,RdMem1,MemReadMem1,Register_WriteMem1)
+process(Rsrc1,Rsrc2,RdAlu,MemReadAlu,Register_WriteAlu,RdMem1,MemReadMem1,Register_WriteMem1)
 variable opCodeint:integer;
 begin
-    if((Rsc1=RdAlu or Rsc2=RdAlu) and MemReadAlu and Register_WriteAlu) then
+    if((Rsrc1=RdAlu or Rsrc2=RdAlu) and MemReadAlu = '1' and Register_WriteAlu = '1') then
         stall2<='1';
-    else if((Rsc1=RdMem1 or Rsc2=RdMem1) and MemReadMem1 and Register_WriteMem1) then
+    else if((Rsrc1=RdMem1 or Rsrc2=RdMem1) and MemReadMem1 = '1' and Register_WriteMem1 = '1') then
         stall1<='1';
     else
         stall2<='0';
