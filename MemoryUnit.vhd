@@ -12,12 +12,11 @@ entity MemoryUnit is
         read_en: in std_logic;
         write_en: in std_logic;
         write_data: in std_logic_vector(15 downto 0);
-        read_data: out std_logic_vector(15 downto 0);
-        read_intial_loc:in std_logic
+        read_data: out std_logic_vector(15 downto 0)
     );
 end MemoryUnit;
 
 architecture MemoryUnitArch of MemoryUnit is
     begin
-        MyDataMemory: entity work.MyDataMemory generic map(WORD_LENGTH,MEMORY_SELECTORS) port map(clk=>clk, w_en=>write_en, r_add =>Readadd , w_add=>Writeadd, write_port=>write_data, read_port=>read_data, read_en=>read_en,en=>en,read_intial_loc=>read_intial_loc);
+        MyDataMemory: entity work.MyDataMemory generic map(WORD_LENGTH,MEMORY_SELECTORS) port map(clk=>clk, w_en=>write_en, r_add =>Readadd , w_add=>Writeadd, write_port=>write_data, read_port=>read_data, read_en=>read_en,en=>en);
 end architecture;

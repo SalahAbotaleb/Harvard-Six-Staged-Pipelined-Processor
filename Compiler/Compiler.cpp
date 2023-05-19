@@ -121,16 +121,16 @@ void encode (const vector<string> &op, const vector<string> &reg, ofstream &fout
                  << "00000"
                  << endl;
         } else if (op[i] == "STD") {
-            fout << "10000000" << bitset<3>(reg[i][4] - '0').to_string() << bitset<3>(reg[i][1] - '0').to_string()
+            fout << "10000000" << bitset<3>(reg[i][1] - '0').to_string() << bitset<3>(reg[i][1] - '0').to_string()
                  << "00" << endl;
         } else if (op[i] == "JZ") {
-            fout << "10001" << bitset<3>(reg[i][1] - '0').to_string() << "00000000" << endl;
+            fout << "10001000" << bitset<3>(reg[i][1] - '0').to_string() << "00000" << endl;
         } else if (op[i] == "JC") {
-            fout << "10010" << bitset<3>(reg[i][1] - '0').to_string() << "00000000" << endl;
+            fout << "10010000" << bitset<3>(reg[i][1] - '0').to_string() << "00000" << endl;
         } else if (op[i] == "JMP") {
-            fout << "10011" << bitset<3>(reg[i][1] - '0').to_string() << "00000000" << endl;
+            fout << "10011000" << bitset<3>(reg[i][1] - '0').to_string() << "00000" << endl;
         } else if (op[i] == "CALL") {
-            fout << "10100" << bitset<3>(reg[i][1] - '0').to_string() << "00000000" << endl;
+            fout << "10100000" << bitset<3>(reg[i][1] - '0').to_string() << "00000" << endl;
         } else if (op[i] == "RET") {
             fout << "1010100000000000" << endl;
         } else if (op[i] == "RTI") {
