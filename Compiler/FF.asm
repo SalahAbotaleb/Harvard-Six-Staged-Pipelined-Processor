@@ -16,17 +16,14 @@
 
 SETC						# this instruction should be at address 20h
 NOT R1,R2					# this instruction should be at address 21h
-INC R1,R3					# this instruction should be at address 22h
+MOV R3,R1					# this instruction should be at address 22h
 IADD R3,R2,100 				# this instruction should be at address 23h & 24h, 100 is hex format (256 decimal)
-AND R4,R3,R4
-RTI							# this instruction should be at address 25h
+OR R4,R3,R4
+IADD R1,R2,100
+IADD R1,R5,10
 
-IN R1						# this instruction should be at address 100h
 INC R1,R1						# this instruction should be at address 101h
 PUSH R1						# this instruction should be at address 102h
 POP R2						# this instruction should be at address 103h
-LDM R3, 30					# this instruction should be at address 104h & 105h, 30 is 30h
-JMP  R3						# this instruction should be at address 106h
-
 NOT  R4,R4          					# this instruction should be at address 30H
 OR R5,R4,R4

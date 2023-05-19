@@ -112,6 +112,6 @@ external_pc<=  read_data when rst='1' else (others=>'0');
 read_intial_loc<='1' when rst='1' else '0';
 FullForwardingUnit: entity work.FullForwardingUnit port map(srcadd1 => deout(84 downto 82), srcadd2 => deout(81 downto 79), RegWrite_ALU => emout(0), RegWrite_M1 => MM(0), RegWrite_M2 => mwbout(0), rd_ALU_M1 => emout(38 downto 36), rd_M1_M2 => MM(38 downto 36), rd_M2_Wb => mwbout(36 downto 34), sel1 => sel1, sel2 => sel2);
 
-Srcdata1 <= deout(42 downto 27) when sel1 = "00" else emout(35 downto 20) when sel1 = "01" else MM(35 downto 20) when sel1 = "10" else mwbout(33 downto 18);
-Srcdata2 <= deout(26 downto 11) when sel2 = "00" else emout(35 downto 20) when sel2 = "01" else MM(35 downto 20) when sel2 = "10" else mwbout(33 downto 18);
+Srcdata1 <= deout(42 downto 27) when sel1 = "00" else emout(35 downto 20) when sel1 = "01" else MM(35 downto 20) when sel1 = "10" else data; --  or mbwout(33 downto 18)
+Srcdata2 <= deout(26 downto 11) when sel2 = "00" else emout(35 downto 20) when sel2 = "01" else MM(35 downto 20) when sel2 = "10" else data; --  or mbwout(33 downto 18)
 end architecture;
