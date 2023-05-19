@@ -10,12 +10,15 @@ entity MynBuffer is
 end MynBuffer;
 architecture MynBufferArch of MynBuffer is
 begin
-    PROCESS(clk,rst)
+    PROCESS(clk)
     BEGIN
-    IF(rst = '1') THEN
-     q <= (others=>'0');
-    ELSIF (clk'event and clk = '1' and en='1') THEN 
-     q <= d;
+    
+    IF (clk'event and clk = '1') then
+        if (rst='1') then
+            q <= (others=>'0');
+        elsif (en='1') then
+            q <= d;
+        end if;
     END IF;
     END PROCESS;
 end MynBufferArch ; -- MynBuffer_arch

@@ -7,6 +7,7 @@ entity ExecutionUnit is
         jumpadd: out std_logic_vector(15 downto 0);
         AlUop: in std_logic_vector(4 downto 0);
         src1,src2,imm: in std_logic_vector(15 downto 0);
+        readflag: in std_logic;
         ALUsrc,RegDst: in std_logic;
         inPort: in std_logic_vector(15 downto 0);
         outPort: out std_logic_vector(15 downto 0);
@@ -21,7 +22,7 @@ end ExecutionUnit;
 
 architecture ExecutionUnitArch of ExecutionUnit is
 begin
-    process(AlUop,src1,src2,imm,ALUsrc,RegDst,CCRin,SPin,PCin,inPort)
+    process(AlUop,src1,src2,imm,ALUsrc,RegDst,CCRin,SPin,PCin,inPort,readflag)
     variable opCodeint: integer;
     variable result: std_logic_vector(16 downto 0);
     variable SPplus1: std_logic_vector(15 downto 0);
@@ -32,10 +33,15 @@ begin
         else
             sr2 := src2;
         end if;
-        opCodeint:=to_integer(unsigned(ALUop));
+        if(rising_edge(readflag)) then
+            opCodeint := 14;
+        else
+            opCodeint:=to_integer(unsigned(ALUop));
+        end if;
+        
         case opCodeint is
             -- NOP
-            when 0 => datares<=(others=>'0');jumptaken <= '0';
+            when 0 => datares<=(others=>'0');jumptaken <= '0';CCRout <= CCRin;
             -- SETC
             when 1 => 
                 CCRout(0) <= '1';jumptaken <= '0';
@@ -137,7 +143,7 @@ begin
                 SPout <= std_logic_vector(unsigned(SPin) - 1);
             -- POP Rdst
             when 14 =>
-                datares <= std_logic_vector(unsigned(SPin) + 1);jumptaken <= '0';
+                memadd <= std_logic_vector(unsigned(SPin) + 1);jumptaken <= '0';
                 SPout <= std_logic_vector(unsigned(SPin) + 1);
             -- LDD Rdst, Rsrc1
             when 15 => memadd<= src1;jumptaken <= '0';
@@ -147,17 +153,22 @@ begin
                 memadd<= sr2;
             -- JZ Rdst
             when 17 => 
+                jumpadd <= src1;
                 if(CCRin(2)='1') then
-                    jumpadd <= src1;
                     jumptaken <= '1';
                     CCRout(2) <= '0';
+                else
+                    jumptaken <= '0';
                 end if;
+
             -- JC Rdst
             when 18 => 
+                jumpadd <= src1;
                 if(CCRin(0)='1') then
-                    jumpadd <= src1;
                     jumptaken <= '1';
                     CCRout(0) <= '0';
+                else
+                    jumptaken <= '0';
                 end if;
             -- JMP Rdst
             when 19 => 
