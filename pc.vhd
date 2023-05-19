@@ -6,6 +6,7 @@ addAmt:in std_logic_vector(1 downto 0);
 external_pc:in std_logic_vector(15 downto 0);
 take_external:in std_logic;
 ci:out std_logic_vector(15 downto 0) --ci: current instruction being pointed by the Pcexternal_pc:in std_logic_vector(15 downto 0);
+
 );
 end entity;
 architecture Pc_arch of Pc is

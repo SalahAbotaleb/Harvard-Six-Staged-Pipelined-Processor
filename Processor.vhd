@@ -16,27 +16,27 @@ signal wr_en : std_logic:='0';
 signal addAmt : std_logic_vector(1 downto 0);
 signal curr_instr : std_logic_vector(15 downto 0);
 signal instr : std_logic_vector(31 downto 0);
-signal fdin : std_logic_vector(47 downto 0);
-signal fdout : std_logic_vector(47 downto 0);
+signal fdin : std_logic_vector(47 downto 0); --going to add 1 signal for interrupt
+signal fdout : std_logic_vector(47 downto 0); --going to add 1 signal for interrupt
 signal read_port_rs : std_logic_vector(15 downto 0);
 signal read_port_rt : std_logic_vector(15 downto 0);
 signal data : std_logic_vector(15 downto 0);
 signal ALUop : std_logic_vector(4 downto 0);
 signal ALUsrc,RegDst,MEMWrite,MEMRead,MemtoReg,RegWrite : std_logic;
-signal dein : std_logic_vector(85 downto 0);
-signal deout : std_logic_vector(85 downto 0);
+signal dein : std_logic_vector(85 downto 0); --going to add 1 signal for interrupt
+signal deout : std_logic_vector(85 downto 0); --going to add 1 signal for interrupt
 signal DataRes : std_logic_vector(15 downto 0);
 signal Memadd : std_logic_vector(15 downto 0);
 signal AluCCRout : std_logic_vector(2 downto 0);
 signal AluCCRin : std_logic_vector(2 downto 0) := "000";
 signal SPin : std_logic_vector(15 downto 0);
 signal SPout : std_logic_vector(15 downto 0);
-signal emin : std_logic_vector(42 downto 0);
-signal emout : std_logic_vector(42 downto 0);
-signal MM : std_logic_vector(42 downto 0);
+signal emin : std_logic_vector(42 downto 0); --going to add 1 signal for interrupt
+signal emout : std_logic_vector(42 downto 0); --going to add 1 signal for interrupt
+signal MM : std_logic_vector(42 downto 0); 
 signal initials : std_logic_vector(31 downto 0);
-signal mwbin : std_logic_vector(37 downto 0);
-signal mwbout : std_logic_vector(37 downto 0);
+signal mwbin : std_logic_vector(37 downto 0); --going to add 1 signal for interrupt
+signal mwbout : std_logic_vector(37 downto 0); --going to add 1 signal for interrupt
 signal RetBranch, RtiBranch: std_logic;
 signal external_pc:std_logic_vector(15 downto 0);
 signal take_external:std_logic;
