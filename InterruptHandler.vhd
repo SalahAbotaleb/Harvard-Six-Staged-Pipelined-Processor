@@ -12,12 +12,13 @@ entity InterruptHandler is
         SPin: in std_logic_vector(15 downto 0);
         SPout: out std_logic_vector(15 downto 0):= std_logic_vector(to_unsigned(1023,16));
         PCin: in std_logic_vector(15 downto 0);
+        
         CCRin: in std_logic_vector(2 downto 0); 
         datatoWrite: out std_logic_vector(15 downto 0);
         memadd: out std_logic_vector(15 downto 0);
         selectPCinterrupt: out std_logic:='0';
         selectSPinterrupt: out std_logic:='0';
-        flushFetch: out std_logic:='1';
+        flushDecodeExecuteBuffer: out std_logic:='1';
         pc_enable: out std_logic:='1'
     );
 end InterruptHandler;
@@ -58,6 +59,7 @@ begin
 
         if(intrFromExternal='1') then
             pc_enable<='0';
+            selectPCinterrupt <= '0';
         elsif(intrFromLastStage='1' and inProcess='0') then
             sendIntrruptInMemory_PC<='1';
             selectSPinterrupt <= '1';
@@ -75,6 +77,7 @@ begin
         elsif(recieveIntrruptInMemory_Flags='1' and inProcess='1') then
             sendIntrruptInMemory_Flags<='0';
             selectPCinterrupt <= '1';
+            selectSPinterrupt <= '0';
             pc_enable<='1';
             inProcess<='0';
         end if;
