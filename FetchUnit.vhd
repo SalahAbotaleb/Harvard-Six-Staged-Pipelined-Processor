@@ -22,14 +22,12 @@ begin
     instructionFile: entity work.MyMemory generic map(16,16)port map(clk=>clk,rst=>'0',w_en=>'0',r_add1=>currin
     ,r_add2=>nxtInstr,w_add=>(others=>'0'),write_port=>(others=>'0'),read_port_rs=>instr1,read_port_rt=>instr2);
     instr<=instr1&instr2;
-    process(clk)
+    process(instr1,instr2)
         begin
-        if(rising_edge(clk)) then
             if(instr1(15 downto 13)="111") then
                 pcNxtAddAmt<="10";
             else
                 pcNxtAddAmt<="01";
             end if;
-        end if;
     end process;
 end architecture;

@@ -49,7 +49,7 @@ begin
         --summarize the steps 
         --1. once an interrupt is recieved the  PC enable will be set to 0
         --2. the interrupt signal is inserted into the pipline to travel to the writeback stage through stages
-        --3 a flushing mechanism will be activated that will flush the decode stage
+        --3 a flushing mechanism will be activated that will flush the decode stage (comment)
                  --once the travelling interrupt signal is detected in the Execute or Memory or Writeback stage 
         --4. if interrupt signal comes from the writeback stage this indicates that the pipeline is being empty 
         --5. then we will send sendIntrruptInMemory_PC to send signal to memory to store PC in the stack

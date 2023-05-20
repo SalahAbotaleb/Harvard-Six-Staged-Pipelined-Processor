@@ -25,9 +25,9 @@ signal ALUop : std_logic_vector(4 downto 0);
 signal ALUsrc,RegDst,MEMWrite,MEMRead,MemtoReg,RegWrite : std_logic;
 signal dein : std_logic_vector(85 downto 0); --going to add 1 signal for interrupt
 signal deout : std_logic_vector(85 downto 0); --going to add 1 signal for interrupt
-signal DataRes : std_logic_vector(15 downto 0);
-signal Memadd : std_logic_vector(15 downto 0);
-signal AluCCRout : std_logic_vector(2 downto 0);
+signal DataRes : std_logic_vector(15 downto 0):="0000000000000000";
+signal Memadd : std_logic_vector(15 downto 0):="0000000000000000";
+signal AluCCRout : std_logic_vector(2 downto 0):="000";
 signal AluCCRin : std_logic_vector(2 downto 0) := "000";
 signal SPin : std_logic_vector(15 downto 0);
 signal SPout : std_logic_vector(15 downto 0);

@@ -10,8 +10,8 @@ entity ExecutionUnit is
         readflag: in std_logic;
         ALUsrc,RegDst: in std_logic;
         inPort: in std_logic_vector(15 downto 0);
-        outPort: out std_logic_vector(15 downto 0);
-        datares, memadd:out std_logic_vector(15 downto 0);
+        outPort: out std_logic_vector(15 downto 0):="0000000000000000";
+        datares, memadd:out std_logic_vector(15 downto 0):="0000000000000000";
         CCRout: out std_logic_vector(2 downto 0) := "000" ; -- Z(zero flag) | N(Negative flag) | C(Carry Flag)
         CCRin: in std_logic_vector(2 downto 0); -- Z(zero flag) | N(Negative flag) | C(Carry Flag)
         SPin: in std_logic_vector(15 downto 0);
