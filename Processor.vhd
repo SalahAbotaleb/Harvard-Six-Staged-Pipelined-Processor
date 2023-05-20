@@ -111,6 +111,8 @@ signal SPinter: std_logic_vector(15 downto 0);
 signal SPalu: std_logic_vector(15 downto 0);
 signal interruptWriteAdd: std_logic_vector(15 downto 0);
 signal alumemadd: std_logic_vector(15 downto 0);
+signal Intr_flushDecodeExecuteBuffer: std_logic;
+signal branchFlush: std_logic;
 begin
 --branchPCen <= '0' when emout(42) = '1' else '1';
 
@@ -144,13 +146,18 @@ interrupthandle: entity work.InterruptHandler port map(intrFromExternal => inter
                 SPout=>SPinter,
                 CCRin=>CCRd,
                 pc_enable => interruptpcen
-                datatoWrite => interruptWriteAdd);
+                datatoWrite => interruptWriteAdd,
+                flushDecodeExecuteBuffer=>Intr_flushDecodeExecuteBuffer
+                );
 --I think we want a mux on the pc to select between the pc from the interrupt handler and the pc from the pc unit
 Pcen <= '0' when branchPCen = '0' or interruptpcen = '0' else '1';
 --I think we want a mux on Stack Pointer to select between the SP from the interrupt handler and the SP from the SP unit(Execution)
 SPout <= SPinter when selectSPinterrupt = '1' else SPalu;
 --I think we want a mux on data to memory to select between the data from the interrupt handler and the data from the Execute-Memory unit
 memadd <= interruptWriteAdd when selectPCinterrupt = '1' or selectSPinterrupt = '1' else alumemadd;
+--flushdecode excute when interrupt is taken
+flush <= '1' when Intr_flushDecodeExecuteBuffer = '1' else branchFlush;
+
 Branching: entity work.BranchUnit port map(
     RetBranch_excute => emin(39),
     RetBranch_mem1 => emout(39),
@@ -165,7 +172,7 @@ Branching: entity work.BranchUnit port map(
     initials => initials(31 downto 16),
     jumpadd => jumpadd,
     jumpadd_memory => read_data,
-    flush => flush,
+    flush => branchFlush,
     CCRPop => read_data(2 downto 0),
     CCR_alu => AluCCRout,
     CCR => CCRd,
