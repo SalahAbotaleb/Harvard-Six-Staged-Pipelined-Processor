@@ -6,9 +6,9 @@ entity InterruptHandler is
         intrFromLastStage : in std_logic;
         intrFromExternal: in std_logic;
         recieveIntrruptInMemory_PC: in std_logic;
-        recieveIntrruptInMemory_Flags: in std_logic;
-        sendIntrruptInMemory_PC: out std_logic;
-        sendIntrruptInMemory_Flags: out std_logic;
+        recieveIntrruptInMemory_Flags: in std_logic; 
+        sendIntrruptInMemory_PC: out std_logic; --MM(44)
+        sendIntrruptInMemory_Flags: out std_logic; --MM(45)
         SPin: in std_logic_vector(15 downto 0);
         SPout: out std_logic_vector(15 downto 0):= std_logic_vector(to_unsigned(1023,16));
         PCin: in std_logic_vector(15 downto 0);
