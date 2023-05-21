@@ -15,8 +15,8 @@ entity InterruptHandler is
         PCin: in std_logic_vector(15 downto 0);
         
         CCRin: in std_logic_vector(2 downto 0); 
-        datatoWrite: out std_logic_vector(15 downto 0):= (others=>'0');
-        memadd: out std_logic_vector(15 downto 0):= (others=>'0');
+        dataTowrite_intr: out std_logic_vector(15 downto 0):= (others=>'0');
+        memadd_intr: out std_logic_vector(15 downto 0):= (others=>'0');
         selectPCinterrupt: out std_logic:='0';
         selectSPinterrupt: out std_logic:='0';
         flushDecodeExecuteBuffer: out std_logic:='0';
@@ -67,16 +67,16 @@ begin
         elsif(intrFromLastStage='1' and inProcess='0') then
             sendIntrruptInMemory_PC<='1';
             selectSPinterrupt <= '1';
-            datatoWrite <= PCin; -- data to write in memory
-            memadd <= SPin; -- destination
+            dataTowrite_intr <= PCin; -- data to write in memory
+            memadd_intr <= SPin; -- destination
             SPout <= std_logic_vector(unsigned(SPin) - 1);
             inProcess<='1';
         elsif(recieveIntrruptInMemory_PC='1' and inProcess='1') then
             sendIntrruptInMemory_Flags<='1';
             sendIntrruptInMemory_PC<='0';
             selectSPinterrupt <= '1';
-            datatoWrite <= (15 downto 3=>'0')&CCRin; -- data to write in memory
-            memadd <= SPin; -- destination
+            dataTowrite_intr <= (15 downto 3=>'0')&CCRin; -- data to write in memory
+            memadd_intr <= SPin; -- destination
             SPout <= std_logic_vector(unsigned(SPin) - 1);
         elsif(recieveIntrruptInMemory_Flags='1' and inProcess='1') then
             sendIntrruptInMemory_Flags<='0';
@@ -98,13 +98,13 @@ begin
         --             flushFetch <= '1';
         --             if(currCounter=4) then
         --                 selectSPinterrupt <= '1';
-        --                 datatoWrite <= PCin; -- data to write in memory
-        --                 memadd <= SPin; -- destination
+        --                 dataTowrite_intr <= PCin; -- data to write in memory
+        --                 memadd_intr <= SPin; -- destination
         --                 SPout <= std_logic_vector(unsigned(SPin) - 1);
         --             elsif(currCounter=2) then
         --                 selectSPinterrupt <= '1';
-        --                 datatoWrite <= (15 downto 3=>'0')&CCRin; -- data to write in memory
-        --                 memadd <= SPin; -- destination
+        --                 dataTowrite_intr <= (15 downto 3=>'0')&CCRin; -- data to write in memory
+        --                 memadd_intr <= SPin; -- destination
         --                 SPout <= std_logic_vector(unsigned(SPin) - 1);
         --             else
         --                 selectSPinterrupt <= '0';
