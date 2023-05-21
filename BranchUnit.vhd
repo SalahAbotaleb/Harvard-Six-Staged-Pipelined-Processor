@@ -42,9 +42,8 @@ architecture brancharch of BranchUnit is
 signal takeit: std_logic := '0';
 signal flush_mem1internal: std_logic := '0';
 begin
-    takeit <= jumptaken or RetBranch_mem2 or rst;
-    flush_mem1internal <= flush_mem1 when rst = '0' else '0';
-    flush <= takeit or RetBranch_excute or RetBranch_mem1 or RtiBranch_mem2 or flush_mem1internal;
+    takeit <= '1' when jumptaken = '1' or RetBranch_mem2 = '1' or rst = '1' else '0';
+    flush <= '1' when takeit = '1' or RetBranch_excute = '1' or RetBranch_mem1 = '1' or RtiBranch_mem2 = '1' or flush_mem1 = '1' else '0';
     take_external <= takeit;
 
     external_pc <=  initials when rst = '1' else
@@ -57,6 +56,6 @@ begin
 
     PCen <= '0' when flush_mem1 = '1' else '1';
 
-    MemReaden <= MEMRead or readflag_mem1;
+    MemReaden <= '1' when MEMRead = '1' or readflag_mem1 = '1' else '0';
 
 end brancharch;
