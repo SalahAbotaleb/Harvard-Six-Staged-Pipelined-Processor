@@ -5,17 +5,18 @@ entity InterruptHandler is
     port (
         intrFromLastStage : in std_logic;
         intrFromExternal: in std_logic;
+        intrFromExecution: in std_logic;
         recieveIntrruptInMemory_PC: in std_logic;
         recieveIntrruptInMemory_Flags: in std_logic; 
-        sendIntrruptInMemory_PC: out std_logic; --MM(44)
-        sendIntrruptInMemory_Flags: out std_logic; --MM(45)
+        sendIntrruptInMemory_PC: out std_logic:='0'; --MM(44)
+        sendIntrruptInMemory_Flags: out std_logic:='0'; --MM(45)
         SPin: in std_logic_vector(15 downto 0);
         SPout: out std_logic_vector(15 downto 0):= std_logic_vector(to_unsigned(1023,16));
         PCin: in std_logic_vector(15 downto 0);
         
         CCRin: in std_logic_vector(2 downto 0); 
-        datatoWrite: out std_logic_vector(15 downto 0);
-        memadd: out std_logic_vector(15 downto 0);
+        datatoWrite: out std_logic_vector(15 downto 0):= (others=>'0');
+        memadd: out std_logic_vector(15 downto 0):= (others=>'0');
         selectPCinterrupt: out std_logic:='0';
         selectSPinterrupt: out std_logic:='0';
         flushDecodeExecuteBuffer: out std_logic:='0';
@@ -60,8 +61,10 @@ begin
         if(intrFromExternal='1') then
             pc_enable<='0';
             selectPCinterrupt <= '0';
-        elsif(intrFromLastStage='1' and inProcess='0') then
+        elsif(intrFromExecution='1') then
             flushDecodeExecuteBuffer <= '1';
+            inProcess<='0';
+        elsif(intrFromLastStage='1' and inProcess='0') then
             sendIntrruptInMemory_PC<='1';
             selectSPinterrupt <= '1';
             datatoWrite <= PCin; -- data to write in memory

@@ -5,7 +5,7 @@ entity Pc is port(clk,rst,en:in std_logic; --addAmt is the amount to be added by
 addAmt:in std_logic_vector(1 downto 0);
 external_pc:in std_logic_vector(15 downto 0);
 take_external:in std_logic;
-ci:out std_logic_vector(15 downto 0) --ci: current instruction being pointed by the Pcexternal_pc:in std_logic_vector(15 downto 0);
+ci:out std_logic_vector(15 downto 0); --ci: current instruction being pointed by the Pcexternal_pc:in std_logic_vector(15 downto 0);
 ci_intr:out std_logic_vector(15 downto 0) --ci: current instruction without enable
 );
 end entity;

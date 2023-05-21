@@ -33,7 +33,7 @@ signal SPin : std_logic_vector(15 downto 0);
 signal SPout : std_logic_vector(15 downto 0);
 signal emin : std_logic_vector(45 downto 0); --going to add 1 signal for interrupt
 signal emout : std_logic_vector(45 downto 0); --going to add 1 signal for interrupt
-signal MM : std_logic_vector(43 downto 0); 
+signal MM : std_logic_vector(45 downto 0); 
 signal initials : std_logic_vector(31 downto 0);
 signal mwbin : std_logic_vector(38 downto 0); --going to add 1 signal for interrupt
 signal mwbout : std_logic_vector(38 downto 0); --going to add 1 signal for interrupt
@@ -86,6 +86,10 @@ signal readflags:std_logic;
 --0                 --RegWrite
 -----------------------------------------------
 ------------------mwbin------------------------
+--45  recieveIntrruptInMemory_Flags
+--44  recieveIntrruptInMemory_PC
+
+--37 intetrupt
 --36 downto 34       --write back address    
 --33 downto 18       --DataRes
 --17 downto 2        --read_data
@@ -113,6 +117,8 @@ signal interruptWriteAdd: std_logic_vector(15 downto 0);
 signal alumemadd: std_logic_vector(15 downto 0);
 signal Intr_flushDecodeExecuteBuffer: std_logic;
 signal branchFlush: std_logic;
+signal selectSPinterrupt: std_logic;
+signal selectPCinterrupt: std_logic;
 begin
 --branchPCen <= '0' when emout(42) = '1' else '1';
 
@@ -141,13 +147,16 @@ interrupthandle: entity work.InterruptHandler port map(intrFromExternal => inter
                 sendIntrruptInMemory_Flags=>sendIntrruptInMemory_Flags,
                 recieveIntrruptInMemory_Flags=>MM(45),
                 recieveIntrruptInMemory_PC=>MM(44),
-                PCin=>CurrentInstr_sInterrupt,
+                PCin=>CurrentInstr_Interrupt,
                 SPin=>SPin,
                 SPout=>SPinter,
                 CCRin=>CCRd,
-                pc_enable => interruptpcen
+                pc_enable => interruptpcen,
                 datatoWrite => interruptWriteAdd,
-                flushDecodeExecuteBuffer=>Intr_flushDecodeExecuteBuffer
+                flushDecodeExecuteBuffer=>Intr_flushDecodeExecuteBuffer,
+                selectSPinterrupt=>selectSPinterrupt,
+                selectPCinterrupt=>selectPCinterrupt,
+                flushDecodeExecuteBuffer=>DE_Buffer(86)
                 );
 --I think we want a mux on the pc to select between the pc from the interrupt handler and the pc from the pc unit
 Pcen <= '0' when branchPCen = '0' or interruptpcen = '0' else '1';
