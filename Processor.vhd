@@ -140,7 +140,7 @@ dein <= fdout(48) & RtiBranch & fdout(23 downto 21) & fdout(20 downto 18) & RetB
 DE_Buffer: entity work.MynBuffer generic map (87) port map(clk => clk , rst => flush, en => '1', d => dein, q => deout);
 CCR_Buffer: entity work.MynBuffer generic map (3) port map(clk => clk , rst => rst, en => '1', d => CCRd, q => AluCCRin);
 SP_Buffer: entity work.Stackregister generic map (16) port map(clk => clk , rst => rst, en => '1', d => SPout, q => SPin);
-ExecutionUnit: entity work.ExecutionUnit port map(readflag => readflags,ALUop => deout(10 downto 6),src1 => Srcdata1,src2 => Srcdata2,imm => deout(58 downto 43),ALUsrc => deout(5), RegDst => deout(4),inPort => inPort,datares => DataRes,memadd => Memadd, CCRout => AluCCRout,CCRin => AluCCRin, SPin =>SPin, SPout=> SPalu, PCin => deout(74 downto 59),jumpadd => jumpadd,jumptaken => jumptaken);
+ExecutionUnit: entity work.ExecutionUnit port map(readflag => readflags,ALUop => deout(10 downto 6),src1 => Srcdata1,src2 => Srcdata2,imm => deout(58 downto 43),inPort => inPort,datares => DataRes,memadd => Memadd, CCRout => AluCCRout,CCRin => AluCCRin, SPin =>SPin, SPout=> SPalu, PCin => deout(74 downto 59),jumpadd => jumpadd,jumptaken => jumptaken);
 --RTIPopFlagUnit: entity work.Popflag port map(flush => RtiFlush, RtiBranch => mwbin(37), readflag => readflags);
 emin <=sendIntrruptInMemory_Flags & sendIntrruptInMemory_PC & deout(86) & readflags & readflags & deout(85) & deout(78 downto 75) & DataRes & Memadd & deout(3 downto 0);
 EM_Buffer: entity work.MynBuffer generic map (46) port map(clk => clk , rst => rst, en => '1', d => emin, q => emout);
