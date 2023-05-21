@@ -59,4 +59,4 @@ begin
 
     MemReaden <= MEMRead or readflag_mem1;
 
-end brancharch;
+end architecture;

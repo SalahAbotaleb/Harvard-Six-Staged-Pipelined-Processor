@@ -1,7 +1,7 @@
 Library ieee;
 use ieee.std_logic_1164.all;
 USE IEEE.numeric_std.all;
-entity Load_Use is
+entity StructuralHazardDetection is
     port (
         MemReadAlu: in std_logic;--coming from the Alu buffer control signal
         MemWriteAlu: in std_logic;--coming from the Alu buffer control signal
@@ -9,9 +9,9 @@ entity Load_Use is
         MemWriteMem1: in std_logic;--coming from the Mem1 buffer control signals
         stall: out std_logic
     );
-end Load_Use;
+end StructuralHazardDetection;
 
-architecture Load_UseArch of Load_Use is
+architecture StructuralHazardDetectionArch of StructuralHazardDetection is
 begin
 process(MemReadAlu,MemWriteAlu,MemReadMem1,MemWriteMem1)
 variable opCodeint:integer;
