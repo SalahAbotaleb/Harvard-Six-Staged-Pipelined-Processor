@@ -42,6 +42,7 @@ signal mwbout : std_logic_vector(38 downto 0); --going to add 1 signal for inter
 signal RetBranch, RtiBranch: std_logic;
 signal external_pc:std_logic_vector(15 downto 0);
 signal take_external:std_logic;
+signal external_taken:std_logic;
 signal read_intial_loc:std_logic;
 signal sel1:std_logic_vector(1 downto 0);
 signal sel2:std_logic_vector(1 downto 0);
@@ -128,7 +129,7 @@ signal pc_external: std_logic_vector(15 downto 0);
 begin
 --branchPCen <= '0' when emout(42) = '1' else '1';
 
-pc: entity work.pc port map(clk=>clk, rst=>rst, en=>Pcen, external_pc=>pc_external, take_external=>pc_take_external, addAmt =>addAmt , ci=>curr_instr,ci_intr=>CurrentInstr_Interrupt);
+pc: entity work.pc port map(clk=>clk, rst=>rst, en=>Pcen, external_pc=>pc_external, take_external=>pc_take_external,external_taken=>external_taken ,addAmt =>addAmt , ci=>curr_instr,ci_intr=>CurrentInstr_Interrupt);
 FetchUnit: entity work.FetchUnit port map(clk=>clk, rst=>rst, currInstrPc=>curr_instr, instr=>instr, pcNxtAddAmt=>addAmt);
 fdin <= interupt & curr_instr & instr;
 FD_Buffer: entity work.MynBuffer generic map (49) port map(clk => clk, rst => flush, en=>'1' , d=>fdin , q=>fdout);
@@ -163,7 +164,8 @@ interrupthandle: entity work.InterruptHandler port map(intrFromExternal => inter
                 flushDecodeExecuteBuffer=>Intr_flushDecodeExecuteBuffer,
                 selectSPinterrupt=>selectSPinterrupt,
                 selectPCinterrupt=>selectPCinterrupt,
-                intrFromExecution=>emout(43)
+                intrFromExecution=>emout(43),
+                external_taken=>external_taken
                 );
 --I think we want a mux on the pc to select between the pc from the interrupt handler and the pc from the pc unit
 Pcen <= '0' when branchPCen = '0' or interruptpcen = '0' else '1';
