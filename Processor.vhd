@@ -28,7 +28,7 @@ signal deout : std_logic_vector(86 downto 0):=(others=>'0'); --going to add 1 si
 signal DataRes : std_logic_vector(15 downto 0):="0000000000000000";
 signal MemdataIn:  std_logic_vector(15 downto 0):="0000000000000000";
 signal Memadd : std_logic_vector(15 downto 0):="0000000000000000";
-signal MemaddIn: std_logic_vector(15 downto 0):="0000000000000000";
+signal MemaddIn: std_logic_vector(9 downto 0):=(others=>'0');
 signal AluCCRout : std_logic_vector(2 downto 0):="000";
 signal AluCCRin : std_logic_vector(2 downto 0) := "000";
 signal SPin : std_logic_vector(15 downto 0);
@@ -126,6 +126,7 @@ signal dataTowrite_intr: std_logic_vector(15 downto 0);
 signal memadd_intr: std_logic_vector(15 downto 0);
 signal pc_take_external: std_logic;
 signal pc_external: std_logic_vector(15 downto 0);
+signal MEMWrite_Mux: std_logic;
 begin
 --branchPCen <= '0' when emout(42) = '1' else '1';
 
@@ -141,10 +142,10 @@ CCR_Buffer: entity work.MynBuffer generic map (3) port map(clk => clk , rst => r
 SP_Buffer: entity work.Stackregister generic map (16) port map(clk => clk , rst => rst, en => '1', d => SPout, q => SPin);
 ExecutionUnit: entity work.ExecutionUnit port map(readflag => readflags,ALUop => deout(10 downto 6),src1 => Srcdata1,src2 => Srcdata2,imm => deout(58 downto 43),ALUsrc => deout(5), RegDst => deout(4),inPort => inPort,datares => DataRes,memadd => Memadd, CCRout => AluCCRout,CCRin => AluCCRin, SPin =>SPin, SPout=> SPalu, PCin => deout(74 downto 59),jumpadd => jumpadd,jumptaken => jumptaken);
 --RTIPopFlagUnit: entity work.Popflag port map(flush => RtiFlush, RtiBranch => mwbin(37), readflag => readflags);
-emin <=sendIntrruptInMemory_Flags & sendIntrruptInMemory_PC & deout(86) & readflags & readflags & deout(85) & deout(78 downto 75) & MemdataIn & MemaddIn & deout(3 downto 0);
+emin <=sendIntrruptInMemory_Flags & sendIntrruptInMemory_PC & deout(86) & readflags & readflags & deout(85) & deout(78 downto 75) & DataRes & Memadd & deout(3 downto 0);
 EM_Buffer: entity work.MynBuffer generic map (46) port map(clk => clk , rst => rst, en => '1', d => emin, q => emout);
 MM_Buffer: entity work.MynBuffer generic map (46) port map(clk => clk , rst => rst, en => '1', d => emout, q => MM);
-MemoryUnit: entity work.MemoryUnit generic map (16,10) port map(clk => clk, en=>'1', Readadd => emout(13 downto 4), Writeadd => emout(13 downto 4),read_en => memreaden, write_en => emout(3), write_data => emout(35 downto 20), read_data => read_data);
+MemoryUnit: entity work.MemoryUnit generic map (16,10) port map(clk => clk, en=>'1', Readadd => emout(13 downto 4), Writeadd => MemaddIn,read_en => memreaden, write_en => MEMWrite_Mux, write_data => MemdataIn, read_data => read_data);
 mwbin <= MM(43) & MM(40) & MM(38 downto 36) & MM(35 downto 20) & read_data & MM(1 downto 0);
 MWB_Buffer: entity work.MynBuffer generic map (39) port map(clk => clk , rst => rst, en => '1', d => mwbin, q => mwbout);
 --take_external<='0';
@@ -174,8 +175,9 @@ pc_external <= initials(15 downto 0) when  selectPCinterrupt = '1' else external
 --I think we want a mux on Stack Pointer to select between the SP from the interrupt handler and the SP from the SP unit(Execution)
 SPout <= SPinter when selectSPinterrupt = '1' else SPalu;
 --I think we want a mux on data to memory to select between the data from the interrupt handler and the data from the Execute-Memory unit
-MemaddIn <= memadd_intr when sendIntrruptInMemory_PC = '1' or sendIntrruptInMemory_Flags = '1' else Memadd;
-MemdataIn<= dataTowrite_intr when sendIntrruptInMemory_PC = '1' or sendIntrruptInMemory_Flags = '1' else DataRes;
+MemaddIn <= memadd_intr(9 downto 0) when sendIntrruptInMemory_PC = '1' or sendIntrruptInMemory_Flags = '1' else emout(13 downto 4);
+MemdataIn<= dataTowrite_intr when sendIntrruptInMemory_PC = '1' or sendIntrruptInMemory_Flags = '1' else emout(35 downto 20);
+MEMWrite_Mux<= '1' when sendIntrruptInMemory_PC = '1' or sendIntrruptInMemory_Flags = '1' else emout(3);
 --flushdecode excute when interrupt is taken
 flush <= '1' when Intr_flushDecodeExecuteBuffer = '1' else branchFlush;
 
