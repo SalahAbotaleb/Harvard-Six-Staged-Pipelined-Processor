@@ -27,7 +27,7 @@ end InterruptHandler;
 architecture InterruptHandlerArch of InterruptHandler is
     signal inProcess: std_logic:='0';
 begin
-    process(intrFromExternal,intrFromLastStage,recieveIntrruptInMemory_PC,recieveIntrruptInMemory_Flags)
+    process(intrFromExternal,intrFromLastStage,recieveIntrruptInMemory_PC,recieveIntrruptInMemory_Flags,intrFromExecution)
     begin
         -- if interrupt signal comes from the writeback stage this
         -- indicates that the pipeline is being empty

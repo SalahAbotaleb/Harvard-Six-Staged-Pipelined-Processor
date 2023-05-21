@@ -156,7 +156,7 @@ interrupthandle: entity work.InterruptHandler port map(intrFromExternal => inter
                 flushDecodeExecuteBuffer=>Intr_flushDecodeExecuteBuffer,
                 selectSPinterrupt=>selectSPinterrupt,
                 selectPCinterrupt=>selectPCinterrupt,
-                flushDecodeExecuteBuffer=>DE_Buffer(86)
+                intrFromExecution=>deout(86)
                 );
 --I think we want a mux on the pc to select between the pc from the interrupt handler and the pc from the pc unit
 Pcen <= '0' when branchPCen = '0' or interruptpcen = '0' else '1';
