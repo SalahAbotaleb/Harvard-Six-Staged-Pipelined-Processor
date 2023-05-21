@@ -129,8 +129,8 @@ signal stall_en: std_logic;     --stall1 nor stall2
 signal new_control_signals: std_logic_vector(10 downto 0);   
 signal DE_en: std_logic := '1';
 signal FD_en: std_logic := '1';
-signal stall_SH: std_logic := '0';
-
+signal stall_SH: std_logic;
+signal new_emin_control_signals: std_logic_vector(3 downto 0);
 
 signal dataTowrite_intr: std_logic_vector(15 downto 0);
 signal memadd_intr: std_logic_vector(15 downto 0);
@@ -140,9 +140,9 @@ signal MEMWrite_Mux: std_logic;
 begin
 --branchPCen <= '0' when emout(42) = '1' else '1';
 
-pc: entity work.pc port map(clk=>clk, rst=>rst, en=>Pcen, external_pc=>pc_external, take_external=>pc_take_external,external_taken=>external_taken ,addAmt =>addAmt , ci=>curr_instr,ci_intr=>CurrentInstr_Interrupt);
-FetchUnit: entity work.FetchUnit port map(clk=>clk, rst=>rst, currInstrPc=>curr_instr, instr=>instr, pcNxtAddAmt=>addAmt);
-fdin <= interupt & curr_instr & instr;
+pc: entity work.pc port map(clk=>clk, rst=>rst, en=>Pcen, external_pc=>pc_external, take_external=>pc_take_external,external_taken=>external_taken ,addAmt =>addAmt , ci=>curr_instr_pc,ci_intr=>CurrentInstr_Interrupt);
+FetchUnit: entity work.FetchUnit port map(clk=>clk, rst=>rst, currInstrPc=>curr_instr_pc, instr=>instr, pcNxtAddAmt=>addAmt);
+fdin <= interupt & curr_instr_pc & instr;
 FD_Buffer: entity work.MynBuffer generic map (49) port map(clk => clk, rst => flush, en=>FD_en , d=>fdin , q=>fdout);
 RegFile: entity work.MyMemory generic map (16,3) port map(clk => clk, rst => rst, w_en => mwbout(0), r_add1 => fdout(23 downto 21), r_add2 => fdout(20 downto 18), w_add =>mwbout(36 downto 34), write_port => data, read_port_rs => read_port_rs, read_port_rt => read_port_rt);
 ControlUnit: entity work.ControlUnit port map(opcode => fdout(31 downto 27), AlUop => AlUop, AlUsrc => AlUsrc, RegDst => RegDst, MEMWrite => MEMWrite, MEMRead => MEMRead, MemtoReg => MemtoReg, RegWrite => RegWrite,RetBranch=>RetBranch, RtiBranch=>RtiBranch);
@@ -152,7 +152,7 @@ CCR_Buffer: entity work.MynBuffer generic map (3) port map(clk => clk , rst => r
 SP_Buffer: entity work.Stackregister generic map (16) port map(clk => clk , rst => rst, en => '1', d => SPout, q => SPin);
 ExecutionUnit: entity work.ExecutionUnit port map(readflag => readflags,ALUop => deout(10 downto 6),src1 => Srcdata1,src2 => Srcdata2,imm => deout(58 downto 43),inPort => inPort,datares => DataRes,memadd => Memadd, CCRout => AluCCRout,CCRin => AluCCRin, SPin =>SPin, SPout=> SPalu, PCin => deout(74 downto 59),jumpadd => jumpadd,jumptaken => jumptaken);
 --RTIPopFlagUnit: entity work.Popflag port map(flush => RtiFlush, RtiBranch => mwbin(37), readflag => readflags);
-emin <=sendIntrruptInMemory_Flags & sendIntrruptInMemory_PC & deout(86) & readflags & readflags & deout(85) & deout(78 downto 75) & DataRes & Memadd & deout(3 downto 0);
+emin <=sendIntrruptInMemory_Flags & sendIntrruptInMemory_PC & deout(86) & readflags & readflags & deout(85) & deout(78 downto 75) & DataRes & Memadd & new_emin_control_signals;    --new_emin_control_signals was deout(3 downto 0)
 EM_Buffer: entity work.MynBuffer generic map (46) port map(clk => clk , rst => rst, en => '1', d => emin, q => emout);
 MM_Buffer: entity work.MynBuffer generic map (46) port map(clk => clk , rst => rst, en => '1', d => emout, q => MM);
 MemoryUnit: entity work.MemoryUnit generic map (16,10) port map(clk => clk, en=>'1', Readadd => emout(13 downto 4), Writeadd => MemaddIn,read_en => memreaden, write_en => MEMWrite_Mux, write_data => MemdataIn, read_data => read_data);
@@ -179,7 +179,7 @@ interrupthandle: entity work.InterruptHandler port map(intrFromExternal => inter
                 external_taken=>external_taken
                 );
 --I think we want a mux on the pc to select between the pc from the interrupt handler and the pc from the pc unit
-Pcen <= '0' when branchPCen = '0' or interruptpcen = '0' or stall_en = '1' else '1';
+Pcen <= '0' when branchPCen = '0' or interruptpcen = '0' or stall_en = '1' or stall_SH = '1' else '1';
 pc_take_external<= take_external or selectPCinterrupt;
 pc_external <= initials(15 downto 0) when  selectPCinterrupt = '1' else external_pc;
 --I think we want a mux on Stack Pointer to select between the SP from the interrupt handler and the SP from the SP unit(Execution)
@@ -237,9 +237,10 @@ LoadUse: entity work.LoadUse port map(Rsrc1 => fdout(23 downto 21), Rsrc2 => fdo
 stall_en <= stall1 or stall2;
 
 new_control_signals <= "00000000000" when stall_en = '1' else AlUop & AlUsrc & RegDst & MEMWrite & MEMRead & MemtoReg & RegWrite;
-FD_en <= '0' when stall_en = '1' else '1';
+FD_en <= '0' when stall_en = '1' or stall_SH = '1' else '1';
 
---StructuralHazardDetection: entity work.StructuralHazardDetection port map(MemReadAlu => deout(2), MemWriteAlu => deout(3), MemReadMem1 => emout(2), MemWriteMem1 => emout(3), stall => stall_SH);
---DE_en <= '0' when stall_SH = '0' else '1';
+StructuralHazardDetection: entity work.StructuralHazardDetection port map(MemReadAlu => deout(2), MemWriteAlu => deout(3), MemReadMem1 => emout(2), MemWriteMem1 => emout(3), stall => stall_SH);
+DE_en <= '0' when stall_SH = '1' else '1';
+new_emin_control_signals <= "0000" when stall_SH = '1' else deout(3 downto 0);
 
 end architecture;

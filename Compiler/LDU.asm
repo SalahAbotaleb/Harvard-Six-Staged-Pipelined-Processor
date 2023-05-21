@@ -20,13 +20,17 @@ IADD R4,R3,100 				# this instruction should be at address 23h & 24h, 100 is hex
 OR R4,R3,R4
 IADD R1,R2,100
 IADD R5,R1,10
+AND R4,R2,R2
 LDD R7,R4
 ADD R6,R7,R1
 
+AND R3,R2,R2
 LDD R4,R3
 OR R0,R2,R5
 SUB R3,R1,R1
-
+LDD R5,R3
 INC R2,R1						# this instruction should be at address 101h
+ADD R5,R5,R2
 NOT  R4,R2          					# this instruction should be at address 30H
 OR R5,R4,R4
+LDM R0,100

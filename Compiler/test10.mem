@@ -1,0 +1,14 @@
+// memory data file (do not edit the following line - required for mem load use)
+// instance=/processor/FetchUnit/instructionFile/x
+// format=mti addressradix=d dataradix=s version=1.0 wordsperline=1
+	0: 0000000000000010
+	1: 0000000000100000
+	2: 1111010010000000
+	3: 0000000000000001
+	4: 0111111110000000
+	5: 0111110001100000
+	6: 1000000010010000
+	7: 1000000011111100
+	8: 0111110101100000
+	9: 1111100000000000
+	10: 0000000000000001
