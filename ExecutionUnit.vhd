@@ -28,11 +28,6 @@ begin
     variable SPplus1: std_logic_vector(15 downto 0);
     variable sr2: std_logic_vector(15 downto 0);
     begin
-        if(AlUsrc = '1') then
-            sr2 := imm;
-        else
-            sr2 := src2;
-        end if;
         if(rising_edge(readflag)) then
             opCodeint := 14;
         else
@@ -197,7 +192,7 @@ begin
             -- restore flags
             -- IADD Rdst, Rsrc1, Imm
             when 30 => 
-                result := std_logic_vector(unsigned('0' & src1) + unsigned('0' & sr2));jumptaken <= '0';
+                result := std_logic_vector(unsigned('0' & src1) + unsigned('0' & imm));jumptaken <= '0';
                 datares<= result(15 downto 0);
                 CCRout(0) <= result(16);
                 CCRout(1) <= result(15);
@@ -208,7 +203,7 @@ begin
                     CCRout(2) <= '0';
                 end if;
             -- LDM Rdst, Imm
-            when 31 => datares<= sr2;jumptaken <= '0';
+            when 31 => memadd <= imm;jumptaken <= '0';
 
             when others=> datares<=(others=>'0'); jumptaken <= '0';
         end case;
