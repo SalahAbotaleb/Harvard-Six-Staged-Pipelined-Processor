@@ -8,6 +8,7 @@ entity InterruptHandler is
         intrFromExecution: in std_logic;
         recieveIntrruptInMemory_PC: in std_logic;
         recieveIntrruptInMemory_Flags: in std_logic; 
+        external_taken: in std_logic;
         sendIntrruptInMemory_PC: out std_logic:='0'; --MM(44)
         sendIntrruptInMemory_Flags: out std_logic:='0'; --MM(45)
         SPin: in std_logic_vector(15 downto 0);
@@ -27,7 +28,7 @@ end InterruptHandler;
 architecture InterruptHandlerArch of InterruptHandler is
     signal inProcess: std_logic:='0';
 begin
-    process(intrFromExternal,intrFromLastStage,recieveIntrruptInMemory_PC,recieveIntrruptInMemory_Flags,intrFromExecution)
+    process(intrFromExternal,intrFromLastStage,recieveIntrruptInMemory_PC,recieveIntrruptInMemory_Flags,intrFromExecution,external_taken)
     begin
         -- if interrupt signal comes from the writeback stage this
         -- indicates that the pipeline is being empty
@@ -85,6 +86,8 @@ begin
             flushDecodeExecuteBuffer <= '0';
             pc_enable<='1';
             inProcess<='0';
+        else
+            selectPCinterrupt <= '0';
         end if;
 
         --     if(currCounter=0 and intr = '1') then 
