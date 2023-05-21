@@ -68,7 +68,7 @@ begin
         elsif(intrFromLastStage='1' and inProcess='0') then
             sendIntrruptInMemory_PC<='1';
             selectSPinterrupt <= '1';
-            dataTowrite_intr <= PCin; -- data to write in memory
+            dataTowrite_intr <= (15 downto 3=>'0')&CCRin; -- data to write in memory
             memadd_intr <= SPin; -- destination
             SPout <= std_logic_vector(unsigned(SPin) - 1);
             inProcess<='1';
@@ -76,7 +76,7 @@ begin
             sendIntrruptInMemory_Flags<='1';
             sendIntrruptInMemory_PC<='0';
             selectSPinterrupt <= '1';
-            dataTowrite_intr <= (15 downto 3=>'0')&CCRin; -- data to write in memory
+            dataTowrite_intr <= PCin; -- data to write in memory
             memadd_intr <= SPin; -- destination
             SPout <= std_logic_vector(unsigned(SPin) - 1);
         elsif(recieveIntrruptInMemory_Flags='1' and inProcess='1') then
