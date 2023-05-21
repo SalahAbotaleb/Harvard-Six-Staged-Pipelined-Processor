@@ -21,13 +21,10 @@ signal PCin: std_logic_vector(15 downto 0);
 
 Begin
     alu: entity work.ExecutionUnit port map (
-        clk => clk,
         AlUop => AlUop,
         src1 => src1,
         src2 => src2,
         imm => imm,
-        ALUsrc => ALUsrc,
-        RegDst => RegDst,
         inPort => inPort,
         outPort => outPort,
         datares => res1,
@@ -36,7 +33,8 @@ Begin
         CCRin => CCRin,
         SPin => SPin,
         SPout => SPout,
-        PCin => PCin
+        PCin => PCin,
+        readflag => '0'
     );
 
     src1 <= b"1010101010101010";

@@ -8,6 +8,7 @@ entity InterruptHandler is
         intrFromExecution: in std_logic;
         recieveIntrruptInMemory_PC: in std_logic;
         recieveIntrruptInMemory_Flags: in std_logic; 
+        external_taken: in std_logic;
         sendIntrruptInMemory_PC: out std_logic:='0'; --MM(44)
         sendIntrruptInMemory_Flags: out std_logic:='0'; --MM(45)
         SPin: in std_logic_vector(15 downto 0);
@@ -15,8 +16,8 @@ entity InterruptHandler is
         PCin: in std_logic_vector(15 downto 0);
         
         CCRin: in std_logic_vector(2 downto 0); 
-        datatoWrite: out std_logic_vector(15 downto 0):= (others=>'0');
-        memadd: out std_logic_vector(15 downto 0):= (others=>'0');
+        dataTowrite_intr: out std_logic_vector(15 downto 0):= (others=>'0');
+        memadd_intr: out std_logic_vector(15 downto 0):= (others=>'0');
         selectPCinterrupt: out std_logic:='0';
         selectSPinterrupt: out std_logic:='0';
         flushDecodeExecuteBuffer: out std_logic:='0';
@@ -27,7 +28,7 @@ end InterruptHandler;
 architecture InterruptHandlerArch of InterruptHandler is
     signal inProcess: std_logic:='0';
 begin
-    process(intrFromExternal,intrFromLastStage,recieveIntrruptInMemory_PC,recieveIntrruptInMemory_Flags,intrFromExecution)
+    process(intrFromExternal,intrFromLastStage,recieveIntrruptInMemory_PC,recieveIntrruptInMemory_Flags,intrFromExecution,external_taken)
     begin
         -- if interrupt signal comes from the writeback stage this
         -- indicates that the pipeline is being empty
@@ -67,16 +68,16 @@ begin
         elsif(intrFromLastStage='1' and inProcess='0') then
             sendIntrruptInMemory_PC<='1';
             selectSPinterrupt <= '1';
-            datatoWrite <= PCin; -- data to write in memory
-            memadd <= SPin; -- destination
+            dataTowrite_intr <= (15 downto 3=>'0')&CCRin; -- data to write in memory
+            memadd_intr <= SPin; -- destination
             SPout <= std_logic_vector(unsigned(SPin) - 1);
             inProcess<='1';
         elsif(recieveIntrruptInMemory_PC='1' and inProcess='1') then
             sendIntrruptInMemory_Flags<='1';
             sendIntrruptInMemory_PC<='0';
             selectSPinterrupt <= '1';
-            datatoWrite <= (15 downto 3=>'0')&CCRin; -- data to write in memory
-            memadd <= SPin; -- destination
+            dataTowrite_intr <= PCin; -- data to write in memory
+            memadd_intr <= SPin; -- destination
             SPout <= std_logic_vector(unsigned(SPin) - 1);
         elsif(recieveIntrruptInMemory_Flags='1' and inProcess='1') then
             sendIntrruptInMemory_Flags<='0';
@@ -85,6 +86,8 @@ begin
             flushDecodeExecuteBuffer <= '0';
             pc_enable<='1';
             inProcess<='0';
+        else
+            selectPCinterrupt <= '0';
         end if;
 
         --     if(currCounter=0 and intr = '1') then 
@@ -98,13 +101,13 @@ begin
         --             flushFetch <= '1';
         --             if(currCounter=4) then
         --                 selectSPinterrupt <= '1';
-        --                 datatoWrite <= PCin; -- data to write in memory
-        --                 memadd <= SPin; -- destination
+        --                 dataTowrite_intr <= PCin; -- data to write in memory
+        --                 memadd_intr <= SPin; -- destination
         --                 SPout <= std_logic_vector(unsigned(SPin) - 1);
         --             elsif(currCounter=2) then
         --                 selectSPinterrupt <= '1';
-        --                 datatoWrite <= (15 downto 3=>'0')&CCRin; -- data to write in memory
-        --                 memadd <= SPin; -- destination
+        --                 dataTowrite_intr <= (15 downto 3=>'0')&CCRin; -- data to write in memory
+        --                 memadd_intr <= SPin; -- destination
         --                 SPout <= std_logic_vector(unsigned(SPin) - 1);
         --             else
         --                 selectSPinterrupt <= '0';
