@@ -14,7 +14,7 @@ end Processor;
 architecture ProcessorArch of Processor is
 signal wr_en : std_logic:='0';
 signal addAmt : std_logic_vector(1 downto 0);
-signal curr_instr : std_logic_vector(15 downto 0);
+signal curr_instr_pc : std_logic_vector(15 downto 0);
 signal instr : std_logic_vector(31 downto 0);
 signal fdin : std_logic_vector(48 downto 0); --going to add 1 signal for interrupt
 signal fdout : std_logic_vector(48 downto 0); --going to add 1 signal for interrupt
@@ -51,6 +51,8 @@ signal Srcdata2:std_logic_vector(15 downto 0);
 signal RtiSPout:std_logic_vector(15 downto 0);
 signal RtiFlush:std_logic := '0';
 signal readflags:std_logic;
+signal Decode_en:std_logic;
+signal Fetch_en:std_logic;
 
 -----------------------------------------------
 ------------------fdin------------------------
@@ -65,7 +67,7 @@ signal readflags:std_logic;
 --84 downto 82      --read address 1
 --81 downto 79      --read address 2
 --78		        --RetBranch
---77 downto 59      --write back address
+--77 downto 75      --write back address
 --74 downto 59      --current instruction (PC)
 --58 downto 43      --immediate
 --42 downto 27      --read data 1   (rs)
@@ -122,6 +124,14 @@ signal Intr_flushDecodeExecuteBuffer: std_logic;
 signal branchFlush: std_logic;
 signal selectSPinterrupt: std_logic;
 signal selectPCinterrupt: std_logic;
+signal stall1: std_logic;       --output from LoadUse
+signal stall2: std_logic;       --output from LoadUse
+signal stall_en: std_logic;     --stall1 nor stall2
+signal new_control_signals: std_logic_vector(10 downto 0);   
+signal DE_en: std_logic := '1';
+signal FD_en: std_logic := '1';
+signal stall_SH: std_logic;
+signal new_emin_control_signals: std_logic_vector(3 downto 0);
 
 signal dataTowrite_intr: std_logic_vector(15 downto 0);
 signal memadd_intr: std_logic_vector(15 downto 0);
@@ -131,19 +141,19 @@ signal MEMWrite_Mux: std_logic;
 begin
 --branchPCen <= '0' when emout(42) = '1' else '1';
 
-pc: entity work.pc port map(clk=>clk, rst=>rst, en=>Pcen, external_pc=>pc_external, take_external=>pc_take_external,external_taken=>external_taken ,addAmt =>addAmt , ci=>curr_instr,ci_intr=>CurrentInstr_Interrupt);
-FetchUnit: entity work.FetchUnit port map(clk=>clk, rst=>rst, currInstrPc=>curr_instr, instr=>instr, pcNxtAddAmt=>addAmt);
-fdin <= interupt & curr_instr & instr;
-FD_Buffer: entity work.MynBuffer generic map (49) port map(clk => clk, rst => flush, en=>'1' , d=>fdin , q=>fdout);
+pc: entity work.pc port map(clk=>clk, rst=>rst, en=>Pcen, external_pc=>pc_external, take_external=>pc_take_external,external_taken=>external_taken ,addAmt =>addAmt , ci=>curr_instr_pc,ci_intr=>CurrentInstr_Interrupt);
+FetchUnit: entity work.FetchUnit port map(clk=>clk, rst=>rst, currInstrPc=>curr_instr_pc, instr=>instr, pcNxtAddAmt=>addAmt);
+fdin <= interupt & curr_instr_pc & instr;
+FD_Buffer: entity work.MynBuffer generic map (49) port map(clk => clk, rst => flush, en=>FD_en , d=>fdin , q=>fdout);
 RegFile: entity work.MyMemory generic map (16,3) port map(clk => clk, rst => rst, w_en => mwbout(0), r_add1 => fdout(23 downto 21), r_add2 => fdout(20 downto 18), w_add =>mwbout(36 downto 34), write_port => data, read_port_rs => read_port_rs, read_port_rt => read_port_rt);
 ControlUnit: entity work.ControlUnit port map(opcode => fdout(31 downto 27), AlUop => AlUop, AlUsrc => AlUsrc, RegDst => RegDst, MEMWrite => MEMWrite, MEMRead => MEMRead, MemtoReg => MemtoReg, RegWrite => RegWrite,RetBranch=>RetBranch, RtiBranch=>RtiBranch);
-dein <= fdout(48) & RtiBranch & fdout(23 downto 21) & fdout(20 downto 18) & RetBranch & fdout(26 downto 24) & fdout(47 downto 32) & fdout(15 downto 0) & read_port_rs & read_port_rt & AlUop & AlUsrc & RegDst & MEMWrite & MEMRead & MemtoReg & RegWrite;
-DE_Buffer: entity work.MynBuffer generic map (87) port map(clk => clk , rst => flush, en => '1', d => dein, q => deout);
+dein <= fdout(48) & RtiBranch & fdout(23 downto 21) & fdout(20 downto 18) & RetBranch & fdout(26 downto 24) & fdout(47 downto 32) & fdout(15 downto 0) & read_port_rs & read_port_rt & new_control_signals;    --new_control_signals was AlUop & AlUsrc & RegDst & MEMWrite & MEMRead & MemtoReg & RegWrite
+DE_Buffer: entity work.MynBuffer generic map (87) port map(clk => clk , rst => flush, en => DE_en, d => dein, q => deout);
 CCR_Buffer: entity work.MynBuffer generic map (3) port map(clk => clk , rst => rst, en => '1', d => CCRd, q => AluCCRin);
 SP_Buffer: entity work.Stackregister generic map (16) port map(clk => clk , rst => rst, en => '1', d => SPout, q => SPin);
 ExecutionUnit: entity work.ExecutionUnit port map(readflag => readflags,ALUop => deout(10 downto 6),src1 => Srcdata1,src2 => Srcdata2,imm => deout(58 downto 43),inPort => inPort,datares => DataRes,memadd => Memadd, CCRout => AluCCRout,CCRin => AluCCRin, SPin =>SPin, SPout=> SPalu, PCin => deout(74 downto 59),jumpadd => jumpadd,jumptaken => jumptaken);
 --RTIPopFlagUnit: entity work.Popflag port map(flush => RtiFlush, RtiBranch => mwbin(37), readflag => readflags);
-emin <=sendIntrruptInMemory_Flags & sendIntrruptInMemory_PC & deout(86) & readflags & readflags & deout(85) & deout(78 downto 75) & DataRes & Memadd & deout(3 downto 0);
+emin <=sendIntrruptInMemory_Flags & sendIntrruptInMemory_PC & deout(86) & readflags & readflags & deout(85) & deout(78 downto 75) & DataRes & Memadd & new_emin_control_signals;    --new_emin_control_signals was deout(3 downto 0)
 EM_Buffer: entity work.MynBuffer generic map (46) port map(clk => clk , rst => rst, en => '1', d => emin, q => emout);
 MM_Buffer: entity work.MynBuffer generic map (46) port map(clk => clk , rst => rst, en => '1', d => emout, q => MM);
 MemoryUnit: entity work.MemoryUnit generic map (16,10) port map(clk => clk, en=>'1', Readadd => emout(13 downto 4), Writeadd => MemaddIn,read_en => memreaden, write_en => MEMWrite_Mux, write_data => MemdataIn, read_data => read_data);
@@ -171,7 +181,7 @@ interrupthandle: entity work.InterruptHandler port map(intrFromExternal => inter
                 inProcess=>inProcess
                 );
 --I think we want a mux on the pc to select between the pc from the interrupt handler and the pc from the pc unit
-Pcen <= '0' when branchPCen = '0' or interruptpcen = '0' else '1';
+Pcen <= '0' when branchPCen = '0' or interruptpcen = '0' or stall_en = '1' or stall_SH = '1' else '1';
 pc_take_external<= take_external or selectPCinterrupt;
 pc_external <= initials(15 downto 0) when  selectPCinterrupt = '1' else external_pc;
 --I think we want a mux on Stack Pointer to select between the SP from the interrupt handler and the SP from the SP unit(Execution)
@@ -222,6 +232,17 @@ initials <= instr when rst='1' else initials;
 --read_intial_loc<='1' when rst='1' else '0';
 FullForwardingUnit: entity work.FullForwardingUnit port map(srcadd1 => deout(84 downto 82), srcadd2 => deout(81 downto 79), RegWrite_ALU => emout(0), RegWrite_M1 => MM(0), RegWrite_M2 => mwbout(0), rd_ALU_M1 => emout(38 downto 36), rd_M1_M2 => MM(38 downto 36), rd_M2_Wb => mwbout(36 downto 34), sel1 => sel1, sel2 => sel2);
 
-Srcdata1 <= deout(42 downto 27) when sel1 = "00" else emout(35 downto 20) when sel1 = "01" else MM(35 downto 20) when sel1 = "10" else data; --  or mbwout(33 downto 18)
-Srcdata2 <= deout(26 downto 11) when sel2 = "00" else emout(35 downto 20) when sel2 = "01" else MM(35 downto 20) when sel2 = "10" else data; --  or mbwout(33 downto 18)
+Srcdata1 <= deout(42 downto 27) when sel1 = "00" else emout(35 downto 20) when sel1 = "01" else MM(35 downto 20) when sel1 = "10" else data;
+Srcdata2 <= deout(26 downto 11) when sel2 = "00" else emout(35 downto 20) when sel2 = "01" else MM(35 downto 20) when sel2 = "10" else data;
+
+LoadUse: entity work.LoadUse port map(Rsrc1 => fdout(23 downto 21), Rsrc2 => fdout(20 downto 18), RdAlu => deout(77 downto 75), MemReadAlu => deout(2), Register_WriteAlu => deout(0), RdMem1 => emout(38 downto 36), MemReadMem1 => emout(2), Register_WriteMem1 => emout(0), stall1 => stall1, stall2 => stall2);
+stall_en <= stall1 or stall2;
+
+new_control_signals <= "00000000000" when stall_en = '1' else AlUop & AlUsrc & RegDst & MEMWrite & MEMRead & MemtoReg & RegWrite;
+FD_en <= '0' when stall_en = '1' or stall_SH = '1' else '1';
+
+StructuralHazardDetection: entity work.StructuralHazardDetection port map(MemReadAlu => deout(2), MemWriteAlu => deout(3), MemReadMem1 => emout(2), MemWriteMem1 => emout(3), stall => stall_SH);
+DE_en <= '0' when stall_SH = '1' else '1';
+new_emin_control_signals <= "0000" when stall_SH = '1' else deout(3 downto 0);
+
 end architecture;

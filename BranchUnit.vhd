@@ -59,4 +59,4 @@ begin
 
     MemReaden <= '1' when MEMRead = '1' or readflag_mem1 = '1' else '0';
 
-end brancharch;
+end architecture;
