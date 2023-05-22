@@ -109,6 +109,7 @@ signal memreaden: std_logic;
 signal branchPCen: std_logic;
 signal interruptpcen: std_logic;
 signal Pcen: std_logic;
+signal inProcess: std_logic;
 --------------
 signal sendIntrruptInMemory_PC : std_logic;
 signal sendIntrruptInMemory_Flags: std_logic;
@@ -161,7 +162,7 @@ mwbin <= MM(43) & MM(40) & MM(38 downto 36) & MM(35 downto 20) & read_data & MM(
 MWB_Buffer: entity work.MynBuffer generic map (39) port map(clk => clk , rst => rst, en => '1', d => mwbin, q => mwbout);
 --take_external<='0';
 interrupthandle: entity work.InterruptHandler port map(intrFromExternal => interupt,
-                intrFromLastStage => mwbout(38),--may be edited
+                intrFromLastStage => mwbin(38),--may be edited
                 sendIntrruptInMemory_PC =>sendIntrruptInMemory_PC,
                 sendIntrruptInMemory_Flags=>sendIntrruptInMemory_Flags,
                 recieveIntrruptInMemory_Flags=>MM(45),
@@ -176,8 +177,9 @@ interrupthandle: entity work.InterruptHandler port map(intrFromExternal => inter
                 flushDecodeExecuteBuffer=>Intr_flushDecodeExecuteBuffer,
                 selectSPinterrupt=>selectSPinterrupt,
                 selectPCinterrupt=>selectPCinterrupt,
-                intrFromExecution=>emout(43),
-                external_taken=>external_taken
+                intrFromExecution=>emin(43),
+                external_taken=>external_taken,
+                inProcess=>inProcess
                 );
 --I think we want a mux on the pc to select between the pc from the interrupt handler and the pc from the pc unit
 Pcen <= '0' when branchPCen = '0' or interruptpcen = '0' or stall_en = '1' or stall_SH = '1' else '1';
@@ -190,7 +192,7 @@ MemaddIn <= memadd_intr(9 downto 0) when sendIntrruptInMemory_PC = '1' or sendIn
 MemdataIn<= dataTowrite_intr when sendIntrruptInMemory_PC = '1' or sendIntrruptInMemory_Flags = '1' else emout(35 downto 20);
 MEMWrite_Mux<= '1' when sendIntrruptInMemory_PC = '1' or sendIntrruptInMemory_Flags = '1' else emout(3);
 --flushdecode excute when interrupt is taken
-flush <= '1' when Intr_flushDecodeExecuteBuffer = '1' else branchFlush;
+flush <= '1' when Intr_flushDecodeExecuteBuffer = '1' or (branchFlush='1' and inProcess='0')else '0';
 
 Branching: entity work.BranchUnit port map(
     RetBranch_excute => emin(39),

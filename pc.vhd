@@ -12,8 +12,11 @@ ci_intr:out std_logic_vector(15 downto 0) --ci: current instruction without enab
 end entity;
 architecture Pc_arch of Pc is
 signal tmp:std_logic_vector(15 downto 0);
+signal prev_intr,curr_intr:std_logic_vector(15 downto 0):="0000000000000000";
 begin
 process(clk,rst) --may want to update
+variable curr:std_logic_vector(15 downto 0):=curr_intr;
+variable prev_new:std_logic_vector(15 downto 0):=curr_intr;
 BEGIN
 if(rst='1') then
 tmp<=external_pc;
@@ -25,14 +28,20 @@ elsif(rising_edge(clk)) then
             if(en='1') then
                 tmp<=std_logic_vector(unsigned(tmp)+unsigned(addAmt));
             end if;
-            ci_intr<=std_logic_vector(unsigned(tmp)+unsigned(addAmt));
+            curr:=std_logic_vector(unsigned(tmp)+unsigned(addAmt));
         else 
             external_taken<='1';
             if(en='1') then
                 tmp<=external_pc;
             end if;    
-            ci_intr<=external_pc;
+            curr:=external_pc;
         end if;
+        if(curr/=prev_intr) then
+            prev_new:=curr_intr;
+            curr_intr<=curr;
+        end if;
+        ci_intr<=curr_intr;
+        prev_intr<=prev_new;
 end if;
 end process;
 ci<=tmp;

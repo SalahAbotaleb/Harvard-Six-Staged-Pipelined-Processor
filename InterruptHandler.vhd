@@ -21,12 +21,12 @@ entity InterruptHandler is
         selectPCinterrupt: out std_logic:='0';
         selectSPinterrupt: out std_logic:='0';
         flushDecodeExecuteBuffer: out std_logic:='0';
-        pc_enable: out std_logic:='1'
+        pc_enable: out std_logic:='1';
+        inProcess: out std_logic:='0'
     );
 end InterruptHandler;
 
 architecture InterruptHandlerArch of InterruptHandler is
-    signal inProcess: std_logic:='0';
 begin
     process(intrFromExternal,intrFromLastStage,recieveIntrruptInMemory_PC,recieveIntrruptInMemory_Flags,intrFromExecution,external_taken)
     begin
@@ -62,31 +62,32 @@ begin
         if(intrFromExternal='1') then
             pc_enable<='0';
             selectPCinterrupt <= '0';
+            inProcess<='1';
         elsif(intrFromExecution='1') then
             flushDecodeExecuteBuffer <= '1';
-            inProcess<='0';
-        elsif(intrFromLastStage='1' and inProcess='0') then
+        elsif(intrFromLastStage='1') then
             sendIntrruptInMemory_PC<='1';
             selectSPinterrupt <= '1';
             dataTowrite_intr <= (15 downto 3=>'0')&CCRin; -- data to write in memory
             memadd_intr <= SPin; -- destination
             SPout <= std_logic_vector(unsigned(SPin) - 1);
-            inProcess<='1';
-        elsif(recieveIntrruptInMemory_PC='1' and inProcess='1') then
+        elsif(recieveIntrruptInMemory_PC='1') then
             sendIntrruptInMemory_Flags<='1';
             sendIntrruptInMemory_PC<='0';
             selectSPinterrupt <= '1';
             dataTowrite_intr <= PCin; -- data to write in memory
             memadd_intr <= SPin; -- destination
             SPout <= std_logic_vector(unsigned(SPin) - 1);
-        elsif(recieveIntrruptInMemory_Flags='1' and inProcess='1') then
+        elsif(recieveIntrruptInMemory_Flags='1') then
             sendIntrruptInMemory_Flags<='0';
             selectPCinterrupt <= '1';
             selectSPinterrupt <= '0';
-            flushDecodeExecuteBuffer <= '0';
             pc_enable<='1';
             inProcess<='0';
         else
+        if(external_taken='1') then
+            flushDecodeExecuteBuffer <= '0';
+        end if;
             selectPCinterrupt <= '0';
         end if;
 
