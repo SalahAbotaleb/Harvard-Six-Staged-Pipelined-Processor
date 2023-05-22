@@ -48,8 +48,9 @@ begin
 
     external_pc <=  initials when rst = '1' else
                     jumpadd when jumptaken = '1' else
-                    jumpadd_memory;
-
+                    jumpadd_memory when RetBranch_mem2 = '1' else
+                    (others => '0');
+                    
     readflag <= RtiBranch_mem2;
 
     CCR <= CCR_alu when readflag_mem2 = '0' else CCRPop;
