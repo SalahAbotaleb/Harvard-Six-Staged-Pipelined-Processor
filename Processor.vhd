@@ -186,7 +186,10 @@ Pcen <= '0' when branchPCen = '0' or interruptpcen = '0' or stall_en = '1' or st
 pc_take_external<= take_external or selectPCinterrupt;
 pc_external <= initials(15 downto 0) when  selectPCinterrupt = '1' else external_pc;
 --I think we want a mux on Stack Pointer to select between the SP from the interrupt handler and the SP from the SP unit(Execution)
-SPout <= SPinter when selectSPinterrupt = '1' else SPalu;
+SPout <= 
+    SPinter when selectSPinterrupt = '1' else
+    SPin when stall_SH = '1' else
+    SPalu;
 --I think we want a mux on data to memory to select between the data from the interrupt handler and the data from the Execute-Memory unit
 MemaddIn <= memadd_intr(9 downto 0) when sendIntrruptInMemory_PC = '1' or sendIntrruptInMemory_Flags = '1' else emout(13 downto 4);
 MemdataIn<= dataTowrite_intr when sendIntrruptInMemory_PC = '1' or sendIntrruptInMemory_Flags = '1' else emout(35 downto 20);
@@ -238,7 +241,7 @@ Srcdata2 <= deout(26 downto 11) when sel2 = "00" else emout(35 downto 20) when s
 
 LoadUse: entity work.LoadUse port map(Rsrc1 => fdout(23 downto 21), Rsrc2 => fdout(20 downto 18), RdAlu => deout(77 downto 75), MemReadAlu => deout(2), Register_WriteAlu => deout(0), RdMem1 => emout(38 downto 36), MemReadMem1 => emout(2), Register_WriteMem1 => emout(0), stall1 => stall1, stall2 => stall2);
 stall_en <= stall1 or stall2;
-deflush <= '1' when stall_en = '1' else flush;
+deflush <= '1' when stall1 = '1' else flush;
 
 new_control_signals <= "00000000000" when stall_en = '1' else AlUop & AlUsrc & RegDst & MEMWrite & MEMRead & MemtoReg & RegWrite;
 FD_en <= '0' when stall_en = '1' or stall_SH = '1' else '1';

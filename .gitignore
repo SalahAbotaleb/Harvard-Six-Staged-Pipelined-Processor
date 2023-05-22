@@ -36,3 +36,5 @@ Compiler/cmake-build-release
 
 # ignore personal script files
 *.ps1
+C1_Phase1_Architecure_Thursday1-4.rar
+.gitignore
