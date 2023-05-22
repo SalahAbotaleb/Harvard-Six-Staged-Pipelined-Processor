@@ -41,7 +41,7 @@ WHEN 20 => ALUsrc<='0';RegDst<='0';MEMWrite<='1';MEMRead<='0';MemtoReg<='0';RegW
 WHEN 21 => ALUsrc<='0';RegDst<='0';MEMWrite<='0';MEMRead<='1';MemtoReg<='0';RegWrite<='0';RetBranch<='1';RtiBranch<='0';
 WHEN 22 => ALUsrc<='0';RegDst<='0';MEMWrite<='0';MEMRead<='1';MemtoReg<='0';RegWrite<='0';RetBranch<='1';RtiBranch<='1';
 WHEN 30 => ALUsrc<='1';RegDst<='0';MEMWrite<='0';MEMRead<='0';MemtoReg<='1';RegWrite<='1';RetBranch<='0';RtiBranch<='0';
-WHEN 31 => ALUsrc<='1';RegDst<='0';MEMWrite<='0';MEMRead<='1';MemtoReg<='0';RegWrite<='1';RetBranch<='0';RtiBranch<='0';
+WHEN 31 => ALUsrc<='1';RegDst<='0';MEMWrite<='0';MEMRead<='0';MemtoReg<='1';RegWrite<='1';RetBranch<='0';RtiBranch<='0';
 WHEN others => ALUsrc<='0';RegDst<='0';MEMWrite<='0';MEMRead<='0';MemtoReg<='0';RegWrite<='0';RetBranch<='0';RtiBranch<='0';
 END CASE;
 end process;

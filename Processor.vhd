@@ -137,6 +137,7 @@ signal memadd_intr: std_logic_vector(15 downto 0);
 signal pc_take_external: std_logic;
 signal pc_external: std_logic_vector(15 downto 0);
 signal MEMWrite_Mux: std_logic;
+signal deflush: std_logic;
 begin
 --branchPCen <= '0' when emout(42) = '1' else '1';
 
@@ -147,10 +148,10 @@ FD_Buffer: entity work.MynBuffer generic map (49) port map(clk => clk, rst => fl
 RegFile: entity work.MyMemory generic map (16,3) port map(clk => clk, rst => rst, w_en => mwbout(0), r_add1 => fdout(23 downto 21), r_add2 => fdout(20 downto 18), w_add =>mwbout(36 downto 34), write_port => data, read_port_rs => read_port_rs, read_port_rt => read_port_rt);
 ControlUnit: entity work.ControlUnit port map(opcode => fdout(31 downto 27), AlUop => AlUop, AlUsrc => AlUsrc, RegDst => RegDst, MEMWrite => MEMWrite, MEMRead => MEMRead, MemtoReg => MemtoReg, RegWrite => RegWrite,RetBranch=>RetBranch, RtiBranch=>RtiBranch);
 dein <= fdout(48) & RtiBranch & fdout(23 downto 21) & fdout(20 downto 18) & RetBranch & fdout(26 downto 24) & fdout(47 downto 32) & fdout(15 downto 0) & read_port_rs & read_port_rt & new_control_signals;    --new_control_signals was AlUop & AlUsrc & RegDst & MEMWrite & MEMRead & MemtoReg & RegWrite
-DE_Buffer: entity work.MynBuffer generic map (87) port map(clk => clk , rst => flush, en => DE_en, d => dein, q => deout);
+DE_Buffer: entity work.MynBuffer generic map (87) port map(clk => clk , rst => deflush, en => DE_en, d => dein, q => deout);
 CCR_Buffer: entity work.MynBuffer generic map (3) port map(clk => clk , rst => rst, en => '1', d => CCRd, q => AluCCRin);
 SP_Buffer: entity work.Stackregister generic map (16) port map(clk => clk , rst => rst, en => '1', d => SPout, q => SPin);
-ExecutionUnit: entity work.ExecutionUnit port map(readflag => readflags,ALUop => deout(10 downto 6),src1 => Srcdata1,src2 => Srcdata2,imm => deout(58 downto 43),inPort => inPort,datares => DataRes,memadd => Memadd, CCRout => AluCCRout,CCRin => AluCCRin, SPin =>SPin, SPout=> SPalu, PCin => deout(74 downto 59),jumpadd => jumpadd,jumptaken => jumptaken);
+ExecutionUnit: entity work.ExecutionUnit port map(outPort => outPort,readflag => readflags,ALUop => deout(10 downto 6),src1 => Srcdata1,src2 => Srcdata2,imm => deout(58 downto 43),inPort => inPort,datares => DataRes,memadd => Memadd, CCRout => AluCCRout,CCRin => AluCCRin, SPin =>SPin, SPout=> SPalu, PCin => deout(74 downto 59),jumpadd => jumpadd,jumptaken => jumptaken);
 --RTIPopFlagUnit: entity work.Popflag port map(flush => RtiFlush, RtiBranch => mwbin(37), readflag => readflags);
 emin <=sendIntrruptInMemory_Flags & sendIntrruptInMemory_PC & deout(86) & readflags & readflags & deout(85) & deout(78 downto 75) & DataRes & Memadd & new_emin_control_signals;    --new_emin_control_signals was deout(3 downto 0)
 EM_Buffer: entity work.MynBuffer generic map (46) port map(clk => clk , rst => rst, en => '1', d => emin, q => emout);
@@ -235,6 +236,7 @@ Srcdata2 <= deout(26 downto 11) when sel2 = "00" else emout(35 downto 20) when s
 
 LoadUse: entity work.LoadUse port map(Rsrc1 => fdout(23 downto 21), Rsrc2 => fdout(20 downto 18), RdAlu => deout(77 downto 75), MemReadAlu => deout(2), Register_WriteAlu => deout(0), RdMem1 => emout(38 downto 36), MemReadMem1 => emout(2), Register_WriteMem1 => emout(0), stall1 => stall1, stall2 => stall2);
 stall_en <= stall1 or stall2;
+deflush <= '1' when stall_en = '1' else flush;
 
 new_control_signals <= "00000000000" when stall_en = '1' else AlUop & AlUsrc & RegDst & MEMWrite & MEMRead & MemtoReg & RegWrite;
 FD_en <= '0' when stall_en = '1' or stall_SH = '1' else '1';

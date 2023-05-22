@@ -350,9 +350,9 @@ begin
                 outPort <= (others => '0');
             -- LDM Rdst, Imm
             when 31 => 
-                memadd <= imm;
+                datares <= imm;
 
-                datares<=(others=>'0');
+                memadd<=(others=>'0');
                 jumptaken <= '0';
                 CCRout <= CCRin;
                 SPout <= SPin;
