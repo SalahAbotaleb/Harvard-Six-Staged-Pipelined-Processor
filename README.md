@@ -1,5 +1,5 @@
 # 6 Stage Processor
-<div align="center"><img src="processor.jpg" alt="processor"></div>
+<div align="center"><img src="processor.PNG" alt="processor"></div>
 
 ## Table of Contents
 
